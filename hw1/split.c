@@ -12,6 +12,7 @@ char **string_split(const char *input, const char *sep, int *num_words)
 
    // size of word and seperator
    int wordLen = 0;
+
    // index of array
    *num_words = 0;
    if (strcspn(input, sep) == 0)
@@ -36,7 +37,7 @@ char **string_split(const char *input, const char *sep, int *num_words)
       wordLen = strspn(input+i, sep);
       i += wordLen;
 
-      if (input[i] == '\0')
+      if (input[i] == '\0' && strspn(input+i, sep) != 0)
       {
          array = (char **)realloc(array, sizeof(char *) * (*num_words+1));
          array[*num_words] = (char *)malloc(sizeof(char) * (wordLen + 1));
