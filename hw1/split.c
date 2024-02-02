@@ -14,33 +14,34 @@ char **string_split(const char *input, const char *sep, int *num_words)
    int wordLen = 0;
    // index of array
    *num_words = 0;
-   if (strspn(input, sep) == 0)
+   if (strcspn(input, sep) == 0)
    {
-      printf("%d \n", *num_words);
       // size of the a
-      array[*num_words] = (char *)malloc(sizeof(char) * ((*num_words) + 1));
+      array[*num_words] = (char *)malloc(sizeof(char) * 1);
       strcpy(array[0], "");
       (*num_words)++;
-      i += strcspn(input, sep);
+      i += strspn(input, sep);
    }
 
    while (input[i] != '\0')
    {
-      wordLen = strspn(input + i, sep);
-      array = (char **)realloc(array, sizeof(char *));
-      array[wordLen] = (char *)malloc(sizeof(char) * (wordLen + 1));
-      (*num_words)++;
+      wordLen = strcspn(input + i, sep);
+      array = (char **)realloc(array, sizeof(char *) * (*num_words+1));
+      array[*num_words] = (char *)malloc(sizeof(char) * (wordLen + 1));
       strncpy(array[(*num_words)], input + i, wordLen);
+      array[(*num_words)][wordLen] = '\0';
+      i += wordLen;
+      (*num_words)++;
+
+      wordLen = strspn(input+i, sep);
       i += wordLen;
 
-      wordLen = strcspn(input, sep);
-      i += wordLen;
-
-      if (input[i + wordLen] == '\0')
+      if (input[i] == '\0')
       {
-         array = (char **)realloc(array, sizeof(char *));
-         array[wordLen] = (char *)malloc(sizeof(char) * (wordLen + 1));
+         array = (char **)realloc(array, sizeof(char *) * (*num_words+1));
+         array[*num_words] = (char *)malloc(sizeof(char) * (wordLen + 1));
          strcpy(array[(*num_words)], "");
+         (*num_words)++;
       }
    }
    return array;
