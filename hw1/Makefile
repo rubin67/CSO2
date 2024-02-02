@@ -1,5 +1,5 @@
-CC = clang
-CFLAGS = -ftrivial-auto-var-init=pattern -D_XOPEN_SOURCE=700 -Og -g -std=c11 -Wall -pedantic -Wunused-result -O0 -fsanitize=address
+CC = gcc
+CFLAGS = -D_XOPEN_SOURCE=700 -Og -g -std=c11 -Wall -pedantic -Wunused-result -O0 -fsanitize=address
 LDFLAGS = -Wall -pedantic -fsanitize=address
 LDLIBS = -lm
 
