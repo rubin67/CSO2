@@ -32,6 +32,12 @@ int main(int argc, char *argv[])
     {
         // read input, call string split to split it up, print out input,  until .
         fgets(inp, sizeof(inp), stdin);
+        if (fgets(inp, sizeof(inp), stdin) == NULL) {
+        // Handle error or exit gracefully
+        fprintf(stderr, "Error reading input.\n");
+        exit(EXIT_FAILURE);
+        break;
+        }
         if(strcmp(inp, ".") != 0){
             break;
         }
