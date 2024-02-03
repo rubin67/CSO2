@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     }
 
     int num_words;
-    char *inp = (char *)malloc(4000);
+    char inp[4000];
     char **splitup;
     int splitup_malloced = 0;
     while (1)
@@ -62,5 +62,4 @@ int main(int argc, char *argv[])
     if(sep_malloced){
         free(sep);
     }
-    free(inp);
 }
