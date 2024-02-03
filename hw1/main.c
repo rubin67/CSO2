@@ -30,12 +30,13 @@ int main(int argc, char *argv[])
     int num_words;
     char *inp = (char *)malloc(4000);
     char **splitup;
+    bool splitup_malloced = false;
     while (1)
     {
         // read input, call string split to split it up, print out input,  until .
-        fgets(inp, 4000, stdin);
-        if (fgets(inp, 4000, stdin) == NULL) {
-        exit(EXIT_FAILURE);
+        char* fgets_output = fgets(inp, 4000, stdin);
+        if (fgets_output == NULL) {
+            exit(EXIT_FAILURE);
         }
         if (strcmp(inp,".\n") == 0)
         {
@@ -43,7 +44,9 @@ int main(int argc, char *argv[])
         }
         inp[strlen(inp) -1] = '\0';
         splitup = string_split(inp, sep, &num_words);
+        splitup_malloced = true;
         // call function
+        printf("Num words: %d", num_words);
         for (int i = 0; i < num_words; i++)
         {
             printf("[%s]\n", splitup[i]);
@@ -53,6 +56,8 @@ int main(int argc, char *argv[])
     {
         free(splitup[i]);
     }
-    free(splitup);
+    if(splitup_malloced){
+        free(splitup);
+    }
     free(inp);
 }
