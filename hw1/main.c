@@ -31,7 +31,6 @@ int main(int argc, char *argv[])
     int num_words;
     char inp[4000];
     char **splitup;
-    int splitup_malloced = 0;
     while (1)
     {
         // read input, call string split to split it up, print out input,  until .
@@ -45,20 +44,28 @@ int main(int argc, char *argv[])
         }
         inp[strlen(inp) -1] = '\0';
         splitup = string_split(inp, sep, &num_words);
-        splitup_malloced = 1;
+
         // call function
         for (int i = 0; i < num_words; i++)
         {
             printf("[%s]", splitup[i]);
         }
-    }
-    if(splitup_malloced){
+        
         for (int i = 0; i < num_words; i++)
         {
             free(splitup[i]);
         }
         free(splitup);
     }
+
+    // if(splitup_malloced){
+    //     printf("%d\n", num_words);
+    //     for (int i = 0; i < num_words; i++)
+    //     {
+    //         free(splitup[i]);
+    //     }
+    //     free(splitup);
+    // }
     if(sep_malloced){
         free(sep);
     }
