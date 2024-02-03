@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
         // call function
         for (int i = 0; i < num_words; i++)
         {
-            printf("[%s]\n", splitup[i]);
+            printf("[%s]", splitup[i]);
         }
     }
     if(splitup_malloced){
