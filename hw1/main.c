@@ -34,6 +34,9 @@ int main(int argc, char *argv[])
     {
         // read input, call string split to split it up, print out input,  until .
         fgets(inp, 4000, stdin);
+        if (fgets(inp, 4000, stdin) == NULL) {
+        exit(EXIT_FAILURE);
+        }
         if (strcmp(inp,".\n") == 0)
         {
             break;

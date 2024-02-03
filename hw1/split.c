@@ -38,7 +38,7 @@ char **string_split(const char *input, const char *sep, int *num_words)
       i += wordLen;
 
       if (input[i] == '\0' && strspn(input+i, sep) != 0)
-      {
+      { 
          array = (char **)realloc(array, sizeof(char *) * (*num_words+1));
          array[*num_words] = (char *)malloc(sizeof(char) * (wordLen + 1));
          strcpy(array[(*num_words)], "");
