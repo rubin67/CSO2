@@ -34,15 +34,16 @@ int main(int argc, char *argv[])
     while (1)
     {
         // read input, call string split to split it up, print out input,  until .
-        char* fgets_output = fgets(inp, 4000, stdin);
-        if (fgets_output == NULL) {
+        char *fgets_output = fgets(inp, 4000, stdin);
+        if (fgets_output == NULL)
+        {
             exit(EXIT_FAILURE);
         }
-        if (strcmp(inp,".\n") == 0)
+        if (strcmp(inp, ".\n") == 0)
         {
             break;
         }
-        inp[strlen(inp) -1] = '\0';
+        inp[strlen(inp) - 1] = '\0';
         splitup = string_split(inp, sep, &num_words);
 
         // call function
@@ -50,7 +51,8 @@ int main(int argc, char *argv[])
         {
             printf("[%s]", splitup[i]);
         }
-        
+        printf("\n");
+
         for (int i = 0; i < num_words; i++)
         {
             free(splitup[i]);
@@ -66,7 +68,8 @@ int main(int argc, char *argv[])
     //     }
     //     free(splitup);
     // }
-    if(sep_malloced){
+    if (sep_malloced)
+    {
         free(sep);
     }
 }
