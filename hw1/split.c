@@ -43,7 +43,6 @@ char **string_split(const char *input, const char *sep, int *num_words)
       array[*num_words] = (char *)malloc(sizeof(char));
       strcpy(array[*num_words], "");
       (*num_words)++;
-      i += strspn(input, sep);
       }
    }
    return array;
