@@ -52,11 +52,11 @@ int main(int argc, char *argv[])
             printf("[%s]\n", splitup[i]);
         }
     }
-    for (int i = 0; i < num_words; i++)
-    {
-        free(splitup[i]);
-    }
     if(splitup_malloced){
+        for (int i = 0; i < num_words; i++)
+        {
+            free(splitup[i]);
+        }
         free(splitup);
     }
     if(sepmall){
