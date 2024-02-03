@@ -37,12 +37,13 @@ char **string_split(const char *input, const char *sep, int *num_words)
       wordLen = strspn(input+i, sep);
       i += wordLen;
 
-      if (input[i] == '\0' && strspn(input+i, sep) != 0)
-      { 
-         array = (char **)realloc(array, sizeof(char *) * (*num_words+1));
-         array[*num_words] = (char *)malloc(sizeof(char) * (wordLen + 1));
-         strcpy(array[(*num_words)], "");
-         (*num_words)++;
+      if (input[i] == '\0' && wordLen > 0)
+      {
+      array = (char **)realloc(array, sizeof(char *) * (*num_words+1));
+      array[*num_words] = (char *)malloc(sizeof(char));
+      strcpy(array[*num_words], "");
+      (*num_words)++;
+      i += strspn(input, sep);
       }
    }
    return array;

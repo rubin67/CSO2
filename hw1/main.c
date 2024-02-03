@@ -6,7 +6,7 @@
 int main(int argc, char *argv[])
 {
     char *sep;
-    int sepmall = 0;
+    int sep_malloced = 0;
     if (argc < 2)
     {
         sep = " \t";
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
         }
 
         sep = (char *)malloc(totalSize + 1);
-        sepmall = 1;
+        sep_malloced = 1;
         sep[0] = '\0'; // Ensure the string is initially empty
         for (int i = 1; i < argc; i++)
         {
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
         }
         free(splitup);
     }
-    if(sepmall){
+    if(sep_malloced){
         free(sep);
     }
     free(inp);
