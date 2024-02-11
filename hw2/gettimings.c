@@ -49,21 +49,21 @@ int main(int argc, char *argv[])
         value = nanosecs();
         getpid();
         endValue = nanosecs();
-        return endValue - value;
+        printf("%lu", (endValue - value));
     }
     else if (atoi(argv[1]) == 3)
     {
         value = nanosecs();
         system("/bin/true");
         endValue = nanosecs();
-        return endValue - value;
+        printf("%lu", (endValue - value));
     }
     else if (atoi(argv[1]) == 4)
     {
         value = nanosecs();
         raise(SIGINT);
         endValue = nanosecs();
-        return endValue - value;
+        printf("%lu", (endValue - value));
     }
     else if (atoi(argv[1]) == 5)
     {
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
             nanosleep(&ts, NULL);
         }
         endValue = nanosecs();
-        return endValue - value;
+        printf("%lu", (endValue - value));
     }
 }
 
