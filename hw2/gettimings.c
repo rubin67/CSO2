@@ -23,6 +23,9 @@ static void handler(int signum)
     {
         signalInt = 0;
     }
+    else if(signum == SIGUSR2){
+        
+    }
    
 }
 
@@ -30,50 +33,52 @@ void emptyFunc()
 {
 }
 
-int main(int argc, char *argv[ ] )
+int main(int argc, char *argv[])
 {
     long value;
     long endValue;
-    if (argc == 1)
+    if (atoi(argv[1]) == 1)
     {
         value = nanosecs();
         emptyFunc();
         endValue = nanosecs();
-        return endValue - value;
+        printf("%lu", (endValue - value));
     }
-    else if (argc == 2)
+    else if (atoi(argv[1]) == 2)
     {
         value = nanosecs();
         getpid();
         endValue = nanosecs();
         return endValue - value;
     }
-    else if (argc == 3)
+    else if (atoi(argv[1]) == 3)
     {
         value = nanosecs();
         system("/bin/true");
         endValue = nanosecs();
         return endValue - value;
     }
-    else if (argc == 4)
+    else if (atoi(argv[1]) == 4)
     {
         value = nanosecs();
-        kill(getpid(), SIGINT);
+        raise(SIGINT);
         endValue = nanosecs();
         return endValue - value;
     }
-    else if (argc == 5)
+    else if (atoi(argv[1]) == 5)
     {
         value = nanosecs();
         while(signalInt){
             struct timespec ts = { .tv_sec = 0, .tv_nsec = 10000000};
             nanosleep(&ts, NULL);
-            handler(SIGUSR1);
         }
         endValue = nanosecs();
         return endValue - value;
     }
 }
+
+
+// 2.3 for dealing extra overhead time, redoing the fifth, part 
 
 
 
