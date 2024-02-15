@@ -8,8 +8,11 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+    long value;
+    long endValue;
+    long extra;
+
 //clock time
-int signalInt = 1;
 long long nanosecs() {
     struct timespec t;
     clock_gettime(CLOCK_MONOTONIC, &t);
@@ -21,57 +24,89 @@ static void handler(int signum)
 
     if (signum == SIGUSR1)
     {
-        signalInt = 0;
+    }
+
+   
+}
+static void handlerReply(int signum)
+{
+
+    if (signum == SIGUSR1)
+    {
+        raise(SIGUSR2);
+        
     }
     else if(signum == SIGUSR2){
-        
+        __asm__("");
     }
    
 }
 
-void emptyFunc()
+
+__attribute__((noinline))void emptyFunc()
 {
+    __asm__("");
 }
 
 int main(int argc, char *argv[])
 {
-    long value;
-    long endValue;
+    
     if (atoi(argv[1]) == 1)
     {
         value = nanosecs();
+        endValue = nanosecs();
+        extra = value - endValue;
+        value = nanosecs();
         emptyFunc();
         endValue = nanosecs();
-        printf("%lu", (endValue - value));
+
+        printf("%lu", (endValue - value - extra));
     }
     else if (atoi(argv[1]) == 2)
     {
         value = nanosecs();
+        endValue = nanosecs();
+        extra = value - endValue;
+        value = nanosecs();
         getpid();
         endValue = nanosecs();
-        printf("%lu", (endValue - value));
+        printf("%lu", (endValue - value - extra));
     }
     else if (atoi(argv[1]) == 3)
     {
         value = nanosecs();
+        endValue = nanosecs();
+        extra = value - endValue;
+        value = nanosecs();
         system("/bin/true");
         endValue = nanosecs();
-        printf("%lu", (endValue - value));
+        printf("%lu", (endValue - value - extra));
     }
     else if (atoi(argv[1]) == 4)
     {
+        struct sigaction sa;
+        sa.sa_handler = handler;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_flags = SA_RESTART;
+        sigaction(SIGUSR1, &sa, NULL);
         value = nanosecs();
-        raise(SIGINT);
+
+        raise(SIGUSR1);
         endValue = nanosecs();
         printf("%lu", (endValue - value));
     }
     else if (atoi(argv[1]) == 5)
     {
+        struct sigaction sa;
+        sa.sa_handler = handlerReply;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_flags = SA_RESTART;
+        sigaction(SIGUSR1, &sa, NULL);
+        sigaction(SIGUSR2, &sa, NULL);
         value = nanosecs();
-        while(signalInt){
-            struct timespec ts = { .tv_sec = 0, .tv_nsec = 10000000};
-            nanosleep(&ts, NULL);
-        }
+        raise(SIGUSR1);
+        struct timespec ts = { .tv_sec = 0, .tv_nsec = 10000000};
+        nanosleep(&ts, NULL);
         endValue = nanosecs();
         printf("%lu", (endValue - value));
     }
@@ -88,3 +123,4 @@ int main(int argc, char *argv[])
     //process1 send kill to process2, process2 catches that in their handler and
     // then sends a kill back, 
     //have a var in both functions so it runs infiite while loop while it happens otherwise use sigwait
+// do it 1000 times find average
