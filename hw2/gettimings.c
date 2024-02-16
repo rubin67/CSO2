@@ -32,7 +32,7 @@ static void handlerReply(int signum)
 
     if (signum == SIGUSR1)
     {
-        raise(SIGUSR2);
+        kill(SIGUSR2, getpid());
         
     }
     else if(signum == SIGUSR2){
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
         sigaction(SIGUSR1, &sa, NULL);
         value = nanosecs();
 
-        raise(SIGUSR1);
+        kill(SIGUSR1, getpid());
         endValue = nanosecs();
         printf("%lu", (endValue - value - extra));
     }
