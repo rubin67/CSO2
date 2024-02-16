@@ -10,7 +10,6 @@
 #include <fcntl.h>
     long value;
     long endValue;
-    long extra;
 
 //clock time
 long long nanosecs() {
@@ -46,27 +45,31 @@ static void handlerReply(int signum)
 __attribute__((noinline))void emptyFunc()
 {
     __asm__("");
+
 }
+
 
 int main(int argc, char *argv[])
 {
-    
-    if (atoi(argv[1]) == 1)
-    {
+    int i = 0;
+    long extra = 0;
+    while(i <= 100){
         value = nanosecs();
         endValue = nanosecs();
-        extra = value - endValue;
+        extra += (endValue - value);
+        i++;
+    }
+    extra /= 100;
+    if (atoi(argv[1]) == 1)
+    {
+        
         value = nanosecs();
         emptyFunc();
         endValue = nanosecs();
-
         printf("%lu", (endValue - value - extra));
     }
     else if (atoi(argv[1]) == 2)
     {
-        value = nanosecs();
-        endValue = nanosecs();
-        extra = value - endValue;
         value = nanosecs();
         getpid();
         endValue = nanosecs();
@@ -74,9 +77,6 @@ int main(int argc, char *argv[])
     }
     else if (atoi(argv[1]) == 3)
     {
-        value = nanosecs();
-        endValue = nanosecs();
-        extra = value - endValue;
         value = nanosecs();
         system("/bin/true");
         endValue = nanosecs();
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
         raise(SIGUSR1);
         endValue = nanosecs();
-        printf("%lu", (endValue - value));
+        printf("%lu", (endValue - value - extra));
     }
     else if (atoi(argv[1]) == 5)
     {
@@ -108,19 +108,6 @@ int main(int argc, char *argv[])
         struct timespec ts = { .tv_sec = 0, .tv_nsec = 10000000};
         nanosleep(&ts, NULL);
         endValue = nanosecs();
-        printf("%lu", (endValue - value));
+        printf("%lu", (endValue - value - extra));
     }
 }
-
-
-// 2.3 for dealing extra overhead time, redoing the fifth, part 
-
-
-
-    //wait to get input of process save the prcoess in the integer 
-    //call kill for the otherpid,
-    //have first program take eachother's pid, then once have eachother's pid, 
-    //process1 send kill to process2, process2 catches that in their handler and
-    // then sends a kill back, 
-    //have a var in both functions so it runs infiite while loop while it happens otherwise use sigwait
-// do it 1000 times find average
