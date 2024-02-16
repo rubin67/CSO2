@@ -1,0 +1,6 @@
+Scenario 1: 2
+Scenario 2: 754
+Scenario 3: 1343146
+Scenario 4: 13012
+Scenario 5: 10107515
+Measurments: found end time - beginning time - overhead

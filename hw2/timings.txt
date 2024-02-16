@@ -1,5 +1,6 @@
-Empty: 71, 65, 57, 68
-GetPID: 4978, 8331, 8461, 7883
-SysBin: 332693, 3343255, 3781602, 3565996
+Empty: 1,2,3
+GetPID: 618,618,614
+SysBin: 1323107, 1364046, 1261961
 Send: 14794, 24863, 16824, 22519
 Receive: 10107515, 10164661, 10103547, 10117652
+Measurments: found end time - beginning time - overhead

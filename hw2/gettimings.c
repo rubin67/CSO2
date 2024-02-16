@@ -10,6 +10,8 @@
 #include <fcntl.h>
     long value;
     long endValue;
+    pid_t otherpid;
+    pid_t fivePid;
 
 //clock time
 long long nanosecs() {
@@ -29,14 +31,26 @@ static void handler(int signum)
 }
 static void handlerReply(int signum)
 {
+    //printf("coming to handler 5 %d\n", signum);
+    if (signum == SIGUSR1)
+    {
+        //printf("coming to SIGUSR1\n");
+    }
+    else if(signum == SIGUSR2){
+        //printf("coming to SIGUSR2\n");
+        endValue = nanosecs();
+    }
+   
+}
+static void handlerNegative(int signum)
+{
 
     if (signum == SIGUSR1)
     {
-        raise(SIGUSR2);
+        //printf("-1 handler\n");
+        kill(fivePid, SIGUSR2);
+        printf("%d\n", fivePid);
         
-    }
-    else if(signum == SIGUSR2){
-        __asm__("");
     }
    
 }
@@ -64,23 +78,35 @@ int main(int argc, char *argv[])
     {
         
         value = nanosecs();
+        int i = 0;
+        while(i<=100){
         emptyFunc();
         endValue = nanosecs();
-        printf("%lu", (endValue - value - extra));
+        i++;
+        }
+        printf("Scenario 1: %lld\n", ((endValue - value)/100 - extra));
     }
     else if (atoi(argv[1]) == 2)
     {
         value = nanosecs();
+        int i = 0;
+        while(i<=100){
         getpid();
         endValue = nanosecs();
-        printf("%lu", (endValue - value - extra));
+        i++;
+        }
+        printf("Scenario 2: %lld\n", ((endValue - value)/100 - extra));
     }
     else if (atoi(argv[1]) == 3)
     {
         value = nanosecs();
+        int i = 0;
+        while(i<=100){
         system("/bin/true");
         endValue = nanosecs();
-        printf("%lu", (endValue - value - extra));
+        i++;
+        }
+        printf("Scenario 3: %lld\n", ((endValue - value)/100 - extra));
     }
     else if (atoi(argv[1]) == 4)
     {
@@ -93,7 +119,7 @@ int main(int argc, char *argv[])
 
         raise(SIGUSR1);
         endValue = nanosecs();
-        printf("%lu", (endValue - value - extra));
+        printf("Scenario 4: %lld\n", (endValue - value - extra));
     }
     else if (atoi(argv[1]) == 5)
     {
@@ -103,12 +129,38 @@ int main(int argc, char *argv[])
         sa.sa_flags = SA_RESTART;
         sigaction(SIGUSR1, &sa, NULL);
         sigaction(SIGUSR2, &sa, NULL);
+        sigset_t signalSet;
+        sigemptyset(&signalSet);
+        int sig;
+
+
+        printf("%d\n", getpid());
+        scanf("%d", &otherpid);
+        int i = 0;   
+        while(i <10){
         value = nanosecs();
-        raise(SIGUSR1);
-        struct timespec ts = { .tv_sec = 0, .tv_nsec = 10000000};
-        nanosleep(&ts, NULL);
-        endValue = nanosecs();
-        printf("%lu", (endValue - value - extra));
+        kill(otherpid, SIGUSR1);
+        i++;
+        }
+        
+        printf("Scenario 5: %lld\n", ((endValue - value)/100 - extra));
+    }
+    else if(atoi(argv[1]) == -1){
+        
+        char *line = NULL;
+        size_t line_length = 0;
+        printf("%d\n", getpid());
+        scanf("%d", &fivePid);
+        
+        struct sigaction sa;
+        sa.sa_handler = handlerNegative;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_flags = SA_RESTART;
+        sigaction(SIGUSR1, &sa, NULL);
+        while(1){
+            pause();
+        }
+
     }
 }
 
