@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
         i++;
         }
         
-        printf("Scenario 5: %lld\n", ((endValue - value)/100 - extra));
+        printf("Scenario 5: %lld\n", ((value - endValue)/100) - extra);
     }
     else if(atoi(argv[1]) == -1){
         
