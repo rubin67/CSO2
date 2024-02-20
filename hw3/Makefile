@@ -4,13 +4,17 @@ LDFLAGS = -Wall -pedantic -fsanitize=address
 LDLIBS = -lm
 
 all: fork_run
+main.o: main.c
+	$(CC) $(CFLAGS) -c main.c -o $@
+
 fork_run.o: fork_run.c
 	$(CC) $(CFLAGS) -c fork_run.c -o $@
 
-fork_run: fork_run.o
-	$(CC) $(CFLAGS) -o fork_run fork_run.o
+
+fork_run: fork_run.o main.o
+	$(CC) $(CFLAGS) -o fork_run fork_run.o main.o
 
 
 
 clean:
-	rm --force fork_run.o
+	rm --force fork_run.o main.o
