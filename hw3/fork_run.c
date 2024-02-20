@@ -81,14 +81,14 @@ char *parallelgetoutput(int count, const char **argv_base)
         
         //handle pointer to pointer as opposed to just pointer
         execv(argv_base[0], (char **)temper);
-        free(pid);
+        //free(pid);
         exit(EXIT_SUCCESS);
         
     }
     else if (pid[i] > 0){
-        free(pid);
-        waitpid(pid, NULL, 0);
+        waitpid(pid[i], NULL, 0);
         printf("%d",i);
+        //free(pid);
     }
         free(pid);
     }
