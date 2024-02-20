@@ -78,18 +78,19 @@ char *parallelgetoutput(int count, const char **argv_base)
         }
         temper[sizeof(argv_base)] = index_str;
         temper[sizeof(argv_base)+1] = "\0";
+        
         //handle pointer to pointer as opposed to just pointer
         execv(argv_base[0], (char **)temper);
-        printf(0);
+        free(pid);
         exit(EXIT_SUCCESS);
-
+        
     }
     else if (pid[i] > 0){
-        
+        free(pid);
         waitpid(pid, NULL, 0);
         printf("%d",i);
     }
-        free(pid[i]);
+        free(pid);
     }
         char *buffer = NULL;
         char *temp = NULL;
@@ -106,12 +107,9 @@ char *parallelgetoutput(int count, const char **argv_base)
         temp = NULL;
         temp_length = 0;
     }
-    if(temp){
-        free(temp);
-    }
-    for(int i = 0; i < count; i++){
-        free(pid[i]);
-    }
-    
+    // if(temp){
+    //     free(temp);
+    // }
+
     return buffer;
 }
