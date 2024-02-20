@@ -55,27 +55,63 @@ char *parallelgetoutput(int count, const char **argv_base)
         perror("pipe error"); /* e. g. out of file descriptors */
     int read_fd = pipe_fd[0];
     int write_fd = pipe_fd[1];
-
-    for(int i = 0; i <= count; i++){
+    pid_t *pid = (malloc)(count * sizeof(pid_t));
     
-    pid_t pid = fork();
-    if (pid == 0)
+    for(int i = 0; i < count; i++){
+    pid[i] = fork();
+    if (pid[i] == 0)
     {
         /* in child process, write to pipe */
         dup2(pipe_fd[1], STDOUT_FILENO);
         close(read_fd);
         close(write_fd);
-        //handle pointer to pointer as opposed to just pointer
-        execv(argv_base[0], argv_base);
-        /* function not shown */
-        exit(EXIT_SUCCESS);
-        //char** temp = (char**)malloc(sizeof(char*)*sizeof(argv_base+2));
-        printf(0);
+        
+
+        //const char** temp = (char**)malloc(sizeof(char*)*sizeof(argv_base+2));
+        const char** temper = malloc(sizeof(char*) * (sizeof(argv_base) + 2));
+        char index_str[10];
+        snprintf(index_str, sizeof(index_str), "%d",i);
+        for(int j = 0; j < sizeof(argv_base); j++){
         //figure out how to place all argv base into temp, and index the number, and add null at the end
+        temper[j] = argv_base[j];
+            
+        }
+        temper[sizeof(argv_base)] = index_str;
+        temper[sizeof(argv_base)+1] = "\0";
+        //handle pointer to pointer as opposed to just pointer
+        execv(argv_base[0], (char **)temper);
+        printf(0);
+        exit(EXIT_SUCCESS);
+
     }
-    else if (pid > 0){
+    else if (pid[i] > 0){
+        
         waitpid(pid, NULL, 0);
-        printf(i);
+        printf("%d",i);
     }
+        free(pid[i]);
     }
+        char *buffer = NULL;
+        char *temp = NULL;
+        size_t temp_length = 0;
+        size_t buffer_length = 0;
+        FILE *theFile = fdopen(read_fd, "r");
+        size_t len = 0;
+    while(getdelim(&temp, &temp_length, '\0', theFile) != -1){
+        len++;
+        buffer = realloc(buffer, buffer_length + len);
+        strncat(buffer+len, temp, temp_length);
+        len += temp_length;
+        free(temp);
+        temp = NULL;
+        temp_length = 0;
+    }
+    if(temp){
+        free(temp);
+    }
+    for(int i = 0; i < count; i++){
+        free(pid[i]);
+    }
+    
+    return buffer;
 }
