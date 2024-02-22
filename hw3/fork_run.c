@@ -65,12 +65,12 @@ char *parallelgetoutput(int count, const char **argv_base)
             dup2(pipe_fd[1], STDOUT_FILENO);
             close(read_fd);
             close(write_fd);
-            int argv_len;
+            int argv_len = 0;
             for (int i = 0; argv_base[i] != NULL; i++)
             {
                 argv_len++;
             }
-            const char *temper[argv_len + 2];
+            const char **temper = malloc(sizeof(char*)*(argv_len + 2));
             for (int j = 0; j < argv_len; j++)
             {
                 // figure out how to place all argv base into temp, and index the number, and add null at the end
@@ -136,7 +136,6 @@ char *parallelgetoutput(int count, const char **argv_base)
         // }
 
 
-                /* in parent process, read from pipe */
         close(write_fd);
         // need to implement this read thing
         //  char* buffer = (char*)malloc(4096);
@@ -146,11 +145,12 @@ char *parallelgetoutput(int count, const char **argv_base)
         FILE *theFile = fdopen(read_fd, "r");
 
         getdelim(&buffer, &buffer_length, '\0', theFile);
+        //printf("%d\n", buffer);
         fclose(theFile);
         //waitpid(child_pid, NULL, 0);
         
         for(int i = 0; i<count;i++)
         waitpid(pid[i], NULL, 0);
-
+    // printf("%d\n", buffer);
     return buffer;
 }
