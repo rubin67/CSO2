@@ -11,3 +11,9 @@ int main() {
     
     printf("Text: [%s]\n", output);
 }
+// int main() {
+//     printf("Hi!\n");
+//     printf("Text: [[[%s]]]\n", 
+//         getoutput("echo 1 2 3; sleep 2; echo 5 5"));
+//     printf("Bye!\n");
+// }
