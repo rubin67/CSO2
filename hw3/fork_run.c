@@ -55,7 +55,7 @@ char *parallelgetoutput(int count, const char **argv_base)
     int read_fd = pipe_fd[0];
     int write_fd = pipe_fd[1];
     pid_t pid[count];
-    char *buffer = NULL;
+    
     for (int i = 0; i < count; i++)
     {
         pid[i] = fork();
@@ -66,11 +66,11 @@ char *parallelgetoutput(int count, const char **argv_base)
             close(read_fd);
             close(write_fd);
             int argv_len;
-            for (int i = 0; argv_base[i] != "/0"; i++)
+            for (int i = 0; argv_base[i] != NULL; i++)
             {
                 argv_len++;
             }
-            const char **temper[argv_len + 2];
+            const char *temper[argv_len + 2];
             for (int j = 0; j < argv_len; j++)
             {
                 // figure out how to place all argv base into temp, and index the number, and add null at the end
@@ -84,46 +84,73 @@ char *parallelgetoutput(int count, const char **argv_base)
             temper[argv_len] = index_str;
 
             // appending null pointer to the end
-            temper[argv_len + 1] = "\0";
+            temper[argv_len + 1] = NULL;
             execv(argv_base[0], (char **)temper);
             // free(pid);
             exit(EXIT_SUCCESS);
         }
 
-        // printf("%d\n", i);
 
+    }
+
+
+
+            // char *buffer = NULL;
+            // size_t buffer_length = 0;
+            // FILE *theFile = fdopen(read_fd, "r");
+            // close(write_fd);
+            // getdelim(&buffer, &buffer_length, '\0', theFile);
+            // // printf("%d\n", 2);
+            // fclose(theFile);
+            // close(read_fd);
+        
+        
+        
+        
+        // char *buffer = NULL;
+        // for(int i = 0; i< count; i++){
+        // close(write_fd);
+        
         // char *temp = NULL;
         // size_t temp_length = 0;
         // size_t buffer_length = 0;
         // FILE *theFile = fdopen(read_fd, "r");
         // size_t len = 0;
+        
         // while (getdelim(&temp, &temp_length, '\0', theFile) == -1)
         // {
-        //     temp = getdelim(&temp, &temp_length, '\0', theFile);
+            
+        //     temp_length = getdelim(&temp, &temp_length, '\0', theFile);
         //     len++;
         //     buffer = realloc(buffer, buffer_length + len);
         //     strncat(buffer + len, temp, temp_length);
+        //     printf("%d\n", 2);
         //     len += temp_length;
         //     temp = NULL;
-        //     temp_length = 0;
+        //     //temp_length = 0;
+            
         // }
-    }
+        // free(temp);
+        // fclose(theFile);
+        // close(read_fd);
+        // }
 
-    // for (int i = 0; i < count; i++)
-    // {
-        if (pid > 0)
-        {
-            char *buffer = NULL;
-            size_t buffer_length = 0;
-            FILE *theFile = fdopen(read_fd, "r");
-            close(write_fd);
-            getdelim(&buffer, &buffer_length, '\0', theFile);
-            // printf("%d\n", 2);
-            fclose(theFile);
-            close(read_fd);
-            waitpid(pid, NULL, 0);
-        }
-    //}
+
+                /* in parent process, read from pipe */
+        close(write_fd);
+        // need to implement this read thing
+        //  char* buffer = (char*)malloc(4096);
+        //  size_t bytes_read;
+        char *buffer = NULL;
+        size_t buffer_length = 0;
+        FILE *theFile = fdopen(read_fd, "r");
+
+        getdelim(&buffer, &buffer_length, '\0', theFile);
+        fclose(theFile);
+        //waitpid(child_pid, NULL, 0);
+        
+        for(int i = 0; i<count;i++)
+        waitpid(pid[i], NULL, 0);
 
     return buffer;
 }
