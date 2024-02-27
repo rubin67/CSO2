@@ -33,6 +33,8 @@ size_t translate(size_t va){
     if((PA & 1)){
         return PA;
     }
+    else
+    return MAX;
 
 
 
