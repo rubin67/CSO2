@@ -19,6 +19,7 @@ size_t translate(size_t va){
         return MAX;
     }
 
+
     size_t offset = va & 0xfff;
     size_t index = va >> POBITS;
     size_t PPN = *((size_t *)ptbr + index) >> POBITS;
@@ -27,6 +28,11 @@ size_t translate(size_t va){
     //make sure page table entry is not null
 
     // if the pte doesnt exist, then return max
+    size_t PTE = ((size_t*)ptbr)[index];
+    if (!(PTE & 1)){
+        return MAX;
+    }
+
     if((PA != 0)){
         return PA;
     }
