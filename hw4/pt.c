@@ -22,15 +22,12 @@ size_t translate(size_t va){
     size_t offset = va & 0xfff;
     size_t index = va >> POBITS;
     size_t PPN = *((size_t *)ptbr + index) >> POBITS;
-    if(!(PPN & 1)){
-        return MAX;
-    }
     size_t PPNshifter = PPN << POBITS;
     size_t PA = PPNshifter | offset;
     //make sure page table entry is not null
 
     // if the pte doesnt exist, then return max
-    if((PA & 1)){
+    if((PA != 0)){
         return PA;
     }
     else
