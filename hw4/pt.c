@@ -13,7 +13,7 @@
 
 alignas(4096) static size_t testing_page_table[512];
 
-size_t ptbr = 0;
+extern size_t ptbr = 0;
 
 size_t translate(size_t va)
 {
