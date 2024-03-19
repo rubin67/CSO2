@@ -9,7 +9,7 @@ pt.o: pt.c config.h mlpt.h
 	$(CC) $(CFLAGS) -c pt.c -o $@
 
 pt: pt.o
-	$(CC) $(CFLAGS) -o my_system my_system.o main.o
+	$(CC) $(CFLAGS) -o pt pt.o
 
 clean:
-	rm --force my_system.o
+	rm --force pt.o
