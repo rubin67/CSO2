@@ -78,10 +78,11 @@ void page_allocate(size_t va)
         size_t *address_to_modify;
         for (int i = 0; i < val1; i++)
         {
-            address_to_modify = ((size_t *)(ptbr + i * 8));
-            ((size_t *)address_to_modify)[pos] = 0x0;
+            //address_to_modify = ((size_t *)(ptbr + i * 8));
+            //((size_t *)address_to_modify)[pos] = 0x0;
+            *((size_t *)(&ptbr + i * sizeof(size_t))) = 0x0;
         }
-        ptbr = address_to_modify - (val - 1) * 8;
+        //ptbr = address_to_modify - (val - 1) * 8;
     }
     size_t curPage = ptbr;
 
@@ -109,10 +110,11 @@ void page_allocate(size_t va)
             size_t address_to_modify;
             for(int i = 0; i < val1; i++)
             {
-                address_to_modify = ((size_t *)(ptbr + i * 8));
-                ((size_t *)address_to_modify)[pos] = 0x0;
+                //address_to_modify = ((size_t *)(ptbr + i * 8));
+                //((size_t *)address_to_modify)[pos] = 0x0;
+                *((size_t *)(&PTE + i * sizeof(size_t))) = 0x0;
             }
-            ptbr = address_to_modify - (val - 1) * 8;
+            //ptbr = address_to_modify - (val - 1) * 8;
             curPage = PTE | 1;
         }
         if ((PPNshifter != 0))
