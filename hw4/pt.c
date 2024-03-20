@@ -69,6 +69,10 @@ void page_allocate(size_t va)
     {
         posix_memalign(&ptbr, 1 << POBITS, 1 << POBITS);
         // memset(&ptbr, 0x22, pow(2,vpnbits));
+        for (int i = 0; i < pow(2, vpnbits); i++)
+        {
+            *((size_t *)(*(&ptbr) + i * sizeof(size_t))) = 0x0;
+        }
     }
     for (int i = 0; count > 0; i++)
     {
@@ -85,11 +89,10 @@ void page_allocate(size_t va)
         {
             size_t *pointer = NULL;
             posix_memalign(&PTE, 1 << POBITS, 1 << POBITS);
-            // for (int i = 0; i < pow(2, vpnbits); i++)
-            // {
-            //     *((size_t *)((size_t *)PTE + i * 8)) = 0;
-            // }
-            // curPage = (size_t)&PTE | 1;
+            for (int i = 0; i < pow(2, vpnbits); i++)
+            {
+                *((size_t *)(*(&PTE) + i * sizeof(size_t))) = 0x0;
+            }
         }
         if ((PPNshifter != 0))
         {
