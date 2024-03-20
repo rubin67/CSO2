@@ -76,15 +76,12 @@ void page_allocate(size_t va)
 
         // memset((void*)ptbr, 0, val1);
         size_t *address_to_modify;
-        for (int i = 0; i < val1; i++) {
+        for (int i = 0; i < val1; i++)
+        {
             address_to_modify = ((size_t *)(ptbr + i * 8));
-            ((size_t *)address_to_modify)[pos] = 0x44; 
-
+            ((size_t *)address_to_modify)[pos] = 0x0;
         }
-        ptbr = address_to_modify - (val - 1)*8;
-        printf("helo");
-
-       
+        ptbr = address_to_modify - (val - 1) * 8;
     }
     size_t curPage = ptbr;
 
@@ -101,18 +98,22 @@ void page_allocate(size_t va)
         size_t PTE = ((size_t *)curPage)[pos];
         if (!(PTE & 1))
         {
-          
+
             int val = pow(2, POBITS);
             posix_memalign((void **)&PTE, val, val);
-            // int val1 = pow(2, vpnbits);
+            int val1 = pow(2, vpnbits);
             // for (int i = 0; i < val1; i++) {
             //  *((size_t *)(&PTE + i * sizeof(size_t))) = 0x0;
             // }
-            memset((void *)PTE, 0x44, 1);
-           
+            // memset((void *)PTE, 0x44, 1);
+            size_t address_to_modify;
+            for(int i = 0; i < val1; i++)
+            {
+                address_to_modify = ((size_t *)(ptbr + i * 8));
+                ((size_t *)address_to_modify)[pos] = 0x0;
+            }
+            ptbr = address_to_modify - (val - 1) * 8;
             curPage = PTE | 1;
-
-            
         }
         if ((PPNshifter != 0))
         {
@@ -120,7 +121,7 @@ void page_allocate(size_t va)
         }
     }
 
-    //size_t PA = curPage | offset;
+    // size_t PA = curPage | offset;
 }
 
 int main()
@@ -132,8 +133,6 @@ int main()
 
     // 5 pages have been allocated: 4 page tables and 1 data
     assert(ptbr != 0);
-    
-
 
     page_allocate(0x456789abcd00);
     // no new pages allocated (still 5)
