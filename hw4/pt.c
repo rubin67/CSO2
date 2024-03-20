@@ -56,12 +56,12 @@ size_t translate(size_t va)
     //         return MAX;
     // }
 
-size_t offset = va & ((1 << POBITS) - 1);
+size_t offset = va & ((1 << POBITS) -1);
     size_t index = va >> POBITS;
     size_t PPN = *((size_t *)ptbr + index) >> POBITS;
     size_t PPNshifter = PPN << POBITS;
     size_t PA = PPNshifter | offset;
-    return PA;
+    return PA -1;
         //return curPage | offset;
 }
 
