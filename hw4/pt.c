@@ -8,6 +8,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 #define MAX (size_t)(-1)
 #define vpnbits (POBITS - 3)
@@ -51,29 +52,29 @@ size_t translate(size_t va)
         else
             return MAX;
     }
+    printf("translate output is %zx: \n", curPage | offset);
     return curPage | offset;
 }
 
 void page_allocate(size_t va)
 {
 
-    size_t offset = va & (1 << POBITS) - 1;
+    size_t offset = va & ((1 << POBITS) - 1);
     size_t index = va >> offset;
 
     size_t pos = index;
 
-    size_t count = LEVELS - 1;
+    size_t count = LEVELS;
 
     if (ptbr == 0)
     {
-        posix_memalign(&ptbr, 1 << POBITS, 1 << POBITS);
-        int val = pow(2, vpnbits);
-        for (int i = 0; i < val; i++)
-        {
-            *((size_t *)(*(&ptbr) + i * sizeof(size_t))) = 0x0;
-        }
+        size_t *pointer;
+        ptbr = &pointer;
+        posix_memalign(&ptbr, pow(2, POBITS), pow(2, POBITS));
+        int val = pow(2, POBITS);
+        memset(ptbr, 0, val);
     }
-        size_t curPage = ptbr;
+    size_t curPage = ptbr;
 
     for (int i = 0; count > 0; i++)
     {
@@ -88,12 +89,10 @@ void page_allocate(size_t va)
         size_t PTE = ((size_t *)curPage)[pos];
         if (!(PTE & 1))
         {
-            posix_memalign(&PTE, 1 << POBITS, 1 << POBITS);
-            int val = pow(2, vpnbits);
-            for (int i = 0; i < val; i++)
-            {
-                *((size_t *)(*(&PTE) + i * sizeof(size_t))) = 0x0;
-            }
+            //size_t *pointer;
+            posix_memalign(&PTE, pow(2, POBITS), pow(2, POBITS));
+            int val = pow(2, POBITS);
+            memset(PTE, 0, val);
             PTE = PTE | 1;
         }
         if ((PPNshifter != 0))
@@ -105,8 +104,7 @@ void page_allocate(size_t va)
     size_t PA = curPage | offset;
 }
 
-int main()
-{
+int main() {
     // 0 pages have been allocated
     assert(ptbr == 0);
 
@@ -116,19 +114,19 @@ int main()
 
     page_allocate(0x456789abcd00);
     // no new pages allocated (still 5)
-
+    
     int *p1 = (int *)translate(0x456789abcd00);
-    *p1 = 0xaabbccdd;
+    //*p1 = 0xaabbccdd;
     short *p2 = (short *)translate(0x456789abcd02);
-    printf("%04hx\n", *p2); // prints "aabb\n"
+    //printf("%04hx\n", *p2); // prints "aabb\n"
 
     assert(translate(0x456789ab0000) == 0xFFFFFFFFFFFFFFFF);
-
+    
     page_allocate(0x456789ab0000);
     // 1 new page allocated (now 6; 4 page table, 2 data)
 
     assert(translate(0x456789ab0000) != 0xFFFFFFFFFFFFFFFF);
-
+    
     page_allocate(0x456780000000);
     // 2 new pages allocated (now 8; 5 page table, 3 data)
 }

@@ -6,10 +6,10 @@ LDLIBS = -lm
 all: pt
 
 pt.o: pt.c config.h mlpt.h
-	$(CC) $(CFLAGS) -c pt.c -o $@
+	$(CC) $(CFLAGS) $(LDLIBS) -c pt.c -o $@
 
 pt: pt.o
-	$(CC) $(CFLAGS) -o pt pt.o -o $@
+	$(CC) $(CFLAGS) $(LDLIBS) -o pt pt.o -o $@
 
 clean:
 	rm --force pt.o
