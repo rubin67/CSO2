@@ -12,8 +12,7 @@
 #define vpnbits (POBITS - 3)
 
 alignas(4096) static size_t testing_page_table[512];
-
-extern size_t ptbr = 0;
+size_t ptbr = 0;
 
 size_t translate(size_t va)
 {
@@ -24,43 +23,46 @@ size_t translate(size_t va)
     }
 
 
-    size_t offset = va & ((1 << POBITS) - 1);
-    size_t index = va >> offset;
+    // size_t offset = va & ((1 << POBITS) - 1);
+    // size_t index = va >> POBITS;
 
-    size_t pos = index;
+    // size_t pos = index;
 
-    size_t count = LEVELS-1;
+    // size_t count = LEVELS-1;
 
-    size_t curPage = ptbr;
-    for (int i = 0; i < count; i++)
-    {
+    // size_t curPage = ptbr;
+    // for (int i = 0; i < count; i++)
+    // {
 
-        pos = index >> (count * vpnbits);
-        count--;
-        pos = pos & ((1 << vpnbits) - 1);
-        // shift it so it only contains index bits
-        size_t PPN = *((size_t *)curPage + pos) >> POBITS;
-        // shift it back so that offset section is added
-        size_t PPNshifter = PPN << POBITS;
+    //     pos = index >> (count * vpnbits);
+    //     count--;
+    //     pos = pos & ((1 << vpnbits) - 1);
+    //     // shift it so it only contains index bits
+    //     size_t PPN = *((size_t *)curPage + pos) >> POBITS;
+    //     // shift it back so that offset section is added
+    //     size_t PPNshifter = PPN << POBITS;
 
-        // make sure page table entry is not null
+    //     size_t PTE = ((size_t *)curPage)[pos];
+    //     if (!(PTE & 1))
+    //     {
+    //         return MAX;
+    //     }
 
-        // if the pte doesnt exist, then return max
-        size_t PTE = ((size_t *)curPage)[pos];
-        if (!(PTE & 1))
-        {
-            return MAX;
-        }
+    //     if ((PPNshifter != 0))
+    //     {
+    //         curPage = PPNshifter;
+    //     }
+    //     else
+    //         return MAX;
+    // }
 
-        if ((PPNshifter != 0))
-        {
-            curPage = PPNshifter;
-        }
-        else
-            return MAX;
-    }
-
-        return curPage | offset;
+size_t offset = va & ((1 << POBITS) - 1);
+    size_t index = va >> POBITS;
+    size_t PPN = *((size_t *)ptbr + index) >> POBITS;
+    size_t PPNshifter = PPN << POBITS;
+    size_t PA = PPNshifter | offset;
+    return PA;
+        //return curPage | offset;
 }
 
 
@@ -81,7 +83,8 @@ void page_allocate(size_t va)
     {
         void* pointer = NULL;
         posix_memalign(pointer, 1 << POBITS, 1 << POBITS);
-        memset(pointer, 0, 1 << POBITS);
+        memset(pointer, 0, POBITS);
+        curPage = (size_t)pointer | 1;
     }
     for (int i = 0; i < LEVELS; i++)
     {
@@ -102,7 +105,8 @@ void page_allocate(size_t va)
         {
             void* pointer = NULL;
             posix_memalign(pointer, 1 << POBITS, 1 << POBITS);
-            memset(pointer, 0, 1 << POBITS);
+            memset(pointer, 0, POBITS);
+            curPage = (size_t)pointer | 1;
         }
 
         if ((PPNshifter != 0))
@@ -112,20 +116,43 @@ void page_allocate(size_t va)
         else{
             void* pointer = NULL;
             posix_memalign(pointer, 1 << POBITS, 1 << POBITS);
-            memset(pointer, 0, 1 << POBITS);
+            memset(pointer, 0, POBITS);
+            curPage = (size_t)pointer | 1;
         }
     }
+    
         size_t PA = curPage | offset;
 
 }
 
 
 
+// int main() {
+//     // 0 pages have been allocated
+//     assert(ptbr == 0);
 
+//     page_allocate(0x456789abcdef);
+//     // 5 pages have been allocated: 4 page tables and 1 data
+//     assert(ptbr != 0);
 
+//     page_allocate(0x456789abcd00);
+//     // no new pages allocated (still 5)
+    
+//     int *p1 = (int *)translate(0x456789abcd00);
+//     *p1 = 0xaabbccdd;
+//     short *p2 = (short *)translate(0x456789abcd02);
+//     printf("%04hx\n", *p2); // prints "aabb\n"
 
+//     assert(translate(0x456789ab0000) == 0xFFFFFFFFFFFFFFFF);
+    
+//     page_allocate(0x456789ab0000);
+//     // 1 new page allocated (now 6; 4 page table, 2 data)
 
-
+//     assert(translate(0x456789ab0000) != 0xFFFFFFFFFFFFFFFF);
+    
+//     page_allocate(0x456780000000);
+//     // 2 new pages allocated (now 8; 5 page table, 3 data)
+// }
 
 
 
