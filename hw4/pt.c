@@ -64,16 +64,17 @@ void page_allocate(size_t va)
 
     size_t count = LEVELS - 1;
 
-    size_t curPage = ptbr;
-    if (curPage == 0)
+    if (ptbr == 0)
     {
         posix_memalign(&ptbr, 1 << POBITS, 1 << POBITS);
-        // memset(&ptbr, 0x22, pow(2,vpnbits));
-        for (int i = 0; i < pow(2, vpnbits); i++)
+        int val = pow(2, vpnbits);
+        for (int i = 0; i < val; i++)
         {
             *((size_t *)(*(&ptbr) + i * sizeof(size_t))) = 0x0;
         }
     }
+        size_t curPage = ptbr;
+
     for (int i = 0; count > 0; i++)
     {
         count--;
@@ -87,12 +88,13 @@ void page_allocate(size_t va)
         size_t PTE = ((size_t *)curPage)[pos];
         if (!(PTE & 1))
         {
-            size_t *pointer = NULL;
             posix_memalign(&PTE, 1 << POBITS, 1 << POBITS);
-            for (int i = 0; i < pow(2, vpnbits); i++)
+            int val = pow(2, vpnbits);
+            for (int i = 0; i < val; i++)
             {
                 *((size_t *)(*(&PTE) + i * sizeof(size_t))) = 0x0;
             }
+            PTE = PTE | 1;
         }
         if ((PPNshifter != 0))
         {
