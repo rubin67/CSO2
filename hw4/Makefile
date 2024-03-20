@@ -6,13 +6,10 @@ LDLIBS = -lm
 all: pt
 
 pt.o: pt.c config.h mlpt.h
-	$(CC) $(CFLAGS) -c pt.c -o libmlpt.a
+	$(CC) $(CFLAGS) -c pt.c -o $@
 
-pt: libmlpt.a pt.o
-	$(CC) $(CFLAGS) -o pt pt.o libmlpt.a
-
-libmlpt.a: pt.o mlpt.h
-	ar -rcs libmlpt.a pt.o mlpt.h
+pt: pt.o
+	$(CC) $(CFLAGS) -o pt pt.o -o $@
 
 clean:
-	rm --force pt.o libmlpt.a
+	rm --force pt.o
