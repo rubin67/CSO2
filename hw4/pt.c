@@ -72,7 +72,7 @@ void page_allocate(size_t va)
         ptbr = &pointer;
         posix_memalign(&ptbr, pow(2, POBITS), pow(2, POBITS));
         int val = pow(2, POBITS);
-        memset(ptbr, 0, val);
+        //memset(ptbr, 0, val);
     }
     size_t curPage = ptbr;
 
@@ -92,7 +92,7 @@ void page_allocate(size_t va)
             //size_t *pointer;
             posix_memalign(&PTE, pow(2, POBITS), pow(2, POBITS));
             int val = pow(2, POBITS);
-            memset(PTE, 0, val);
+            //memset(PTE, 0, val);
             PTE = PTE | 1;
         }
         if ((PPNshifter != 0))
