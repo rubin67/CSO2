@@ -68,15 +68,23 @@ void page_allocate(size_t va)
 
     if (ptbr == 0)
     {
-        void *pointer;
-        ptbr = &pointer;
-        posix_memalign(&ptbr, pow(2, POBITS), pow(2, POBITS));
+
         int val = pow(2, POBITS);
-        memset((void*)ptbr, 0, val);
-        // for (int i = 0; i < val; i++)
-        // {                                                    // should probably use memset here
-        //     *((size_t *)(&ptbr + i * sizeof(size_t))) = 0x0; // initialize each entry to 0. Really the only thing that matters here is that the valid bit is 0
-        // }
+
+        posix_memalign((void **)&ptbr, val, val);
+        int val1 = pow(2, vpnbits);
+
+        // memset((void*)ptbr, 0, val1);
+        size_t *address_to_modify;
+        for (int i = 0; i < val1; i++) {
+            address_to_modify = ((size_t *)(ptbr + i * 8));
+            ((size_t *)address_to_modify)[pos] = 0x44; 
+
+        }
+        ptbr = address_to_modify - (val - 1)*8;
+        printf("helo");
+
+       
     }
     size_t curPage = ptbr;
 
@@ -93,16 +101,18 @@ void page_allocate(size_t va)
         size_t PTE = ((size_t *)curPage)[pos];
         if (!(PTE & 1))
         {
-            void *pointer;
-            PTE = &pointer;
-            posix_memalign(&PTE, pow(2, POBITS), pow(2, POBITS));
+          
             int val = pow(2, POBITS);
-            // for (int i = 0; i < val; i++)
-            // {                                                    // should probably use memset here
-            //     *((size_t *)(&PTE + i * sizeof(size_t))) = 0x0; // initialize each entry to 0. Really the only thing that matters here is that the valid bit is 0
+            posix_memalign((void **)&PTE, val, val);
+            // int val1 = pow(2, vpnbits);
+            // for (int i = 0; i < val1; i++) {
+            //  *((size_t *)(&PTE + i * sizeof(size_t))) = 0x0;
             // }
-            memset((void*)PTE, 0, val);
-            PTE = PTE | 1;
+            memset((void *)PTE, 0x44, 1);
+           
+            curPage = PTE | 1;
+
+            
         }
         if ((PPNshifter != 0))
         {
@@ -110,36 +120,39 @@ void page_allocate(size_t va)
         }
     }
 
-    size_t PA = curPage | offset;
+    //size_t PA = curPage | offset;
 }
 
-// int main()
-// {
-//     // 0 pages have been allocated
-//     assert(ptbr == 0);
+int main()
+{
+    // 0 pages have been allocated
+    assert(ptbr == 0);
 
-//     page_allocate(0x456789abcdef);
-//     // 5 pages have been allocated: 4 page tables and 1 data
-//     assert(ptbr != 0);
+    page_allocate(0x456789abcdef);
 
-//     page_allocate(0x456789abcd00);
-//     // no new pages allocated (still 5)
+    // 5 pages have been allocated: 4 page tables and 1 data
+    assert(ptbr != 0);
+    
 
-//     int *p1 = (int *)translate(0x456789abcd00);
-//     //*p1 = 0xaabbccdd;
-//     short *p2 = (short *)translate(0x456789abcd02);
-//     printf("%04hx\n", *p2); // prints "aabb\n"
 
-//     assert(translate(0x456789ab0000) == 0xFFFFFFFFFFFFFFFF);
+    page_allocate(0x456789abcd00);
+    // no new pages allocated (still 5)
 
-//     page_allocate(0x456789ab0000);
-//     // 1 new page allocated (now 6; 4 page table, 2 data)
+    // int *p1 = (int *)translate(0x456789abcd00);
+    // *p1 = 0xaabbccdd;
+    // short *p2 = (short *)translate(0x456789abcd02);
+    // printf("%04hx\n", *p2); // prints "aabb\n"
 
-//     assert(translate(0x456789ab0000) != 0xFFFFFFFFFFFFFFFF);
+    assert(translate(0x456789ab0000) == 0xFFFFFFFFFFFFFFFF);
 
-//     page_allocate(0x456780000000);
-//     // 2 new pages allocated (now 8; 5 page table, 3 data)
-// }
+    page_allocate(0x456789ab0000);
+    // 1 new page allocated (now 6; 4 page table, 2 data)
+
+    assert(translate(0x456789ab0000) != 0xFFFFFFFFFFFFFFFF);
+
+    page_allocate(0x456780000000);
+    // 2 new pages allocated (now 8; 5 page table, 3 data)
+}
 
 // static void set_testing_ptbr(void)
 // {
