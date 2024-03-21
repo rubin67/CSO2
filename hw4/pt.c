@@ -55,14 +55,14 @@ size_t translate(size_t va)
     printf("translate output is %zx: \n", curPage | offset);
     return curPage | offset;
 }
-
+int countPages = 0;
 size_t *insertPageWhenInvalid(size_t ptr)
 {
     size_t *pointer;
     int size = pow(2, POBITS);
     posix_memalign((void **)&pointer, size, size);
-    int levelSize = pow(2, vpnbits);
-    memset((void *)pointer, 0, levelSize);
+    countPages++;
+    memset((void *)pointer, 0, size);
     return pointer;
 }
 
@@ -71,7 +71,7 @@ void page_allocate(size_t va)
     // establish offset bits
     size_t offset = va & ((1 << POBITS) - 1);
     // step 1: remove offset bits
-    size_t index = va >> offset;
+    size_t index = va >> POBITS;
 
     size_t index_Holder = index;
     size_t count = LEVELS;
@@ -91,6 +91,7 @@ void page_allocate(size_t va)
         // step 3: remove unused bits with a mask
         index_Holder = index_Holder & ((1 << vpnbits) - 1);
         // step 4: move to index of ptbr and shift through by POBITS to the address
+
         size_t PPN = *((size_t *)ptbr_Holder + index_Holder) >> POBITS;
         // step 5: shift left by POBITS to create space for it
         size_t page_address = PPN << POBITS;
@@ -98,6 +99,7 @@ void page_allocate(size_t va)
         size_t PTE = ((size_t *)ptbr_Holder)[index_Holder];
         if (!(PTE & 1))
         {
+
             PTE = (size_t)insertPageWhenInvalid(PTE);
             // make the valid bit to 1
             ((size_t *)ptbr_Holder)[index_Holder] = PTE | 1;
@@ -126,10 +128,10 @@ int main()
     page_allocate(0x456789abcd00);
     // no new pages allocated (still 5)
 
-    // int *p1 = (int *)translate(0x456789abcd00);
-    // *p1 = 0xaabbccdd;
-    // short *p2 = (short *)translate(0x456789abcd02);
-    // printf("%04hx\n", *p2); // prints "aabb\n"
+    int *p1 = (int *)translate(0x456789abcd00);
+    *p1 = 0xaabbccdd;
+    short *p2 = (short *)translate(0x456789abcd02);
+    printf("%04hx\n", *p2); // prints "aabb\n"
 
     assert(translate(0x456789ab0000) == 0xFFFFFFFFFFFFFFFF);
 
