@@ -8,12 +8,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <math.h>
 #define MAX (size_t)(-1)
 #define vpnbits (POBITS - 3)
 
-alignas(4096) static size_t testing_page_table[512];
 size_t ptbr = 0;
 
 size_t translate(size_t va)
@@ -68,8 +66,7 @@ size_t *insertPageWhenInvalid(size_t ptr)
 
 void page_allocate(size_t va)
 {
-    // establish offset bits
-    size_t offset = va & ((1 << POBITS) - 1);
+
     // step 1: remove offset bits
     size_t index = va >> POBITS;
 
@@ -112,64 +109,33 @@ void page_allocate(size_t va)
         }
     }
 
-    size_t PA = ptbr_Holder | offset;
+    //size_t PA = ptbr_Holder | offset;
 }
-
-int main()
-{
-    // 0 pages have been allocated
-    assert(ptbr == 0);
-
-    page_allocate(0x456789abcdef);
-
-    // 5 pages have been allocated: 4 page tables and 1 data
-    assert(ptbr != 0);
-
-    page_allocate(0x456789abcd00);
-    // no new pages allocated (still 5)
-
-    int *p1 = (int *)translate(0x456789abcd00);
-    *p1 = 0xaabbccdd;
-    short *p2 = (short *)translate(0x456789abcd02);
-    printf("%04hx\n", *p2); // prints "aabb\n"
-
-    assert(translate(0x456789ab0000) == 0xFFFFFFFFFFFFFFFF);
-
-    page_allocate(0x456789ab0000);
-    // 1 new page allocated (now 6; 4 page table, 2 data)
-
-    assert(translate(0x456789ab0000) != 0xFFFFFFFFFFFFFFFF);
-
-    page_allocate(0x456780000000);
-    // 2 new pages allocated (now 8; 5 page table, 3 data)
-}
-
-// static void set_testing_ptbr(void)
+// int main()
 // {
-//     ptbr = (size_t)&testing_page_table[0];
-// }
+//     // 0 pages have been allocated
+//     assert(ptbr == 0);
 
-// int main(int argc, char *argv[])
-// {
-//     alignas(4096) static size_t page_of_data[512];
+//     page_allocate(0x456789abcdef);
 
-//     set_testing_ptbr();
+//     // 5 pages have been allocated: 4 page tables and 1 data
+//     assert(ptbr != 0);
 
-//     alignas(4096) static char data_for_page_3[4096];
+//     page_allocate(0x456789abcd00);
+//     // no new pages allocated (still 5)
 
-//     size_t address_of_data_for_page_3_as_integer = (size_t)&data_for_page_3[0];
-//     size_t physical_page_number_of_data_for_page_3 = address_of_data_for_page_3_as_integer >> 12;
-//     size_t page_table_entry_for_page_3 = ((physical_page_number_of_data_for_page_3 << 12) |
-//                                           1);
+//     int *p1 = (int *)translate(0x456789abcd00);
+//     *p1 = 0xaabbccdd;
+//     short *p2 = (short *)translate(0x456789abcd02);
+//     printf("%04hx\n", *p2); // prints "aabb\n"
 
-//     testing_page_table[3] = page_table_entry_for_page_3;
+//     assert(translate(0x456789ab0000) == 0xFFFFFFFFFFFFFFFF);
 
-//     size_t data = (size_t)&data_for_page_3[0x45];
+//     page_allocate(0x456789ab0000);
+//     // 1 new page allocated (now 6; 4 page table, 2 data)
 
-//     printf("%zx\n", translate(0x3045));
-//     printf("%zx\n", data);
+//     assert(translate(0x456789ab0000) != 0xFFFFFFFFFFFFFFFF);
 
-//     assert(translate(0x3044) == data);
-
-//     return 0;
+//     page_allocate(0x456780000000);
+//     // 2 new pages allocated (now 8; 5 page table, 3 data)
 // }
