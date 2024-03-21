@@ -29,7 +29,7 @@ size_t translate(size_t va)
         return MAX;
     }
 
-    for (int i = 0; count > 0; i++)
+    while (count > 0)
     {
         count--;
         pos = index >> (count * vpnbits);
@@ -56,74 +56,61 @@ size_t translate(size_t va)
     return curPage | offset;
 }
 
+size_t *insertPageWhenInvalid(size_t ptr)
+{
+    size_t *pointer;
+    int size = pow(2, POBITS);
+    posix_memalign((void **)&pointer, size, size);
+    int levelSize = pow(2, vpnbits);
+    memset((void *)pointer, 0, levelSize);
+    return pointer;
+}
+
 void page_allocate(size_t va)
 {
-
+    // establish offset bits
     size_t offset = va & ((1 << POBITS) - 1);
+    // step 1: remove offset bits
     size_t index = va >> offset;
 
-    size_t pos = index;
-
+    size_t index_Holder = index;
     size_t count = LEVELS;
 
     if (ptbr == 0)
     {
-
-        int val = pow(2, POBITS);
-
-        posix_memalign((void **)&ptbr, val, val);
-        int val1 = pow(2, vpnbits);
-
-        // memset((void*)ptbr, 0, val1);
-        size_t *address_to_modify;
-        for (int i = 0; i < val1; i++)
-        {
-            //address_to_modify = ((size_t *)(ptbr + i * 8));
-            //((size_t *)address_to_modify)[pos] = 0x0;
-            *((size_t *)(&ptbr + i * sizeof(size_t))) = 0x0;
-        }
-        //ptbr = address_to_modify - (val - 1) * 8;
+        ptbr = (size_t)insertPageWhenInvalid(ptbr);
     }
-    size_t curPage = ptbr;
+    size_t ptbr_Holder = ptbr;
 
-    for (int i = 0; count > 0; i++)
+    while (count > 0)
     {
         count--;
-        pos = index >> (count * vpnbits);
-        pos = pos & ((1 << vpnbits) - 1);
+        // step 2: remove any higher levels
+        index_Holder = index >> (count * vpnbits);
 
-        // shift it so it only contains index bits
-        size_t PPN = *((size_t *)curPage + pos) >> POBITS;
-        // shift it back so that offset section is added
-        size_t PPNshifter = PPN << POBITS;
-        size_t PTE = ((size_t *)curPage)[pos];
+        // step 3: remove unused bits with a mask
+        index_Holder = index_Holder & ((1 << vpnbits) - 1);
+        // step 4: move to index of ptbr and shift through by POBITS to the address
+        size_t PPN = *((size_t *)ptbr_Holder + index_Holder) >> POBITS;
+        // step 5: shift left by POBITS to create space for it
+        size_t page_address = PPN << POBITS;
+        // step 6: move to
+        size_t PTE = ((size_t *)ptbr_Holder)[index_Holder];
         if (!(PTE & 1))
         {
-
-            int val = pow(2, POBITS);
-            posix_memalign((void **)&PTE, val, val);
-            int val1 = pow(2, vpnbits);
-            // for (int i = 0; i < val1; i++) {
-            //  *((size_t *)(&PTE + i * sizeof(size_t))) = 0x0;
-            // }
-            // memset((void *)PTE, 0x44, 1);
-            size_t address_to_modify;
-            for(int i = 0; i < val1; i++)
-            {
-                //address_to_modify = ((size_t *)(ptbr + i * 8));
-                //((size_t *)address_to_modify)[pos] = 0x0;
-                *((size_t *)(&PTE + i * sizeof(size_t))) = 0x0;
-            }
-            //ptbr = address_to_modify - (val - 1) * 8;
-            curPage = PTE | 1;
+            PTE = (size_t)insertPageWhenInvalid(PTE);
+            // make the valid bit to 1
+            ((size_t *)ptbr_Holder)[index_Holder] = PTE | 1;
+            ptbr_Holder = PTE;
         }
-        if ((PPNshifter != 0))
+
+        if ((page_address != 0))
         {
-            curPage = PPNshifter;
+            ptbr_Holder = page_address;
         }
     }
 
-    // size_t PA = curPage | offset;
+    size_t PA = ptbr_Holder | offset;
 }
 
 int main()
