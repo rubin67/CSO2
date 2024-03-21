@@ -1,1 +1,18 @@
-licenses
+Licenses
+GNU General Public License (GPL):
+Summary: The GPL is a copyleft license that requires derivative works to be distributed under the same license. 
+
+I decided not to use the GPL for my project because I wanted to allow for more permissive use of the code, including integration into proprietary software without imposing the requirement to open-source the entire product.
+
+
+MIT License:
+Summary: The MIT License is a permissive license that allows for almost unrestricted use, modification, distribution, and sublicense of the software.
+
+I chose the MIT License for my project because it provides a balance between openness and simplicity, allowing users to freely use and modify the code while maintaining a clear copyright statement.
+
+
+Apache License 2.0:
+Summary: The Apache License 2.0 is a permissive license with some additional conditions, including a patent grant, a limitation of liability, and a requirement to include a copy of the license in derivative works.
+
+While the Apache License 2.0 offers similar freedoms to the MIT License, its additional patent grant clause provides stronger protection for contributors and users. 
+However, I ultimately opted for the MIT License due to its simplicity and widespread adoption in the open-source community.

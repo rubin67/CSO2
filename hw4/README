@@ -1,2 +1,5 @@
 Config.h:
-this is where you can specify the level and POBITs
+- This is where you can specify the level and POBITs
+- You may use higher levels to manage larger address spaces more efficiently by dividing them into smaller, more manageable units
+
+
