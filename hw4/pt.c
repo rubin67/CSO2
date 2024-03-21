@@ -34,17 +34,17 @@ size_t translate(size_t va)
         pos = pos & ((1 << vpnbits) - 1);
 
         // shift it so it only contains index bits
-        size_t PPN = *((size_t *)curPage + pos) >> POBITS;
+        size_t ppn = *((size_t *)curPage + pos) >> POBITS;
         // shift it back so that offset section is added
-        size_t PPNshifter = PPN << POBITS;
-        size_t PTE = ((size_t *)curPage)[pos];
-        if (!(PTE & 1))
+        size_t page_address = ppn << POBITS;
+        size_t pte = ((size_t *)curPage)[pos];
+        if (!(pte & 1))
         {
             return MAX;
         }
-        if ((PPNshifter != 0))
+        if ((page_address != 0))
         {
-            curPage = PPNshifter;
+            curPage = page_address;
         }
 
         else
@@ -89,18 +89,18 @@ void page_allocate(size_t va)
         index_Holder = index_Holder & ((1 << vpnbits) - 1);
         // step 4: move to index of ptbr and shift through by POBITS to the address
 
-        size_t PPN = *((size_t *)ptbr_Holder + index_Holder) >> POBITS;
+        size_t ppn = *((size_t *)ptbr_Holder + index_Holder) >> POBITS;
         // step 5: shift left by POBITS to create space for it
-        size_t page_address = PPN << POBITS;
+        size_t page_address = ppn << POBITS;
         // step 6: move to
-        size_t PTE = ((size_t *)ptbr_Holder)[index_Holder];
-        if (!(PTE & 1))
+        size_t pte = ((size_t *)ptbr_Holder)[index_Holder];
+        if (!(pte & 1))
         {
 
-            PTE = (size_t)insertPageWhenInvalid(PTE);
+            pte = (size_t)insertPageWhenInvalid(pte);
             // make the valid bit to 1
-            ((size_t *)ptbr_Holder)[index_Holder] = PTE | 1;
-            ptbr_Holder = PTE;
+            ((size_t *)ptbr_Holder)[index_Holder] = pte | 1;
+            ptbr_Holder = pte;
         }
 
         if ((page_address != 0))
