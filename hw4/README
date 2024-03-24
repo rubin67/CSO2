@@ -6,7 +6,8 @@ Proposed De-allocation Interface:
 void page_deallocate(size_t va);
 - This function would take a virtual address (va) as an argument and deallocate the corresponding physical memory pages.
 Drawbacks:
-    The page_deallocate interface operates at the level of virtual addresses, but the memory allocation and mapping process may involve multiple physical pages for a single virtual address. De-allocating a virtual address without considering its underlying physical pages could lead to fragmentation or memory leaks.
+    The page_deallocate interface operates at the level of virtual addresses, but the memory allocation and mapping process may involve multiple physical pages for a single virtual address. 
+    De-allocating a virtual address without considering its underlying physical pages could lead to fragmentation or memory leaks.
     
     Will need to modify page_allocate to maintain detailed metadata about allocated pages. This metadata should include information such as virtual-to-physical address mappings, page statuses, and any other relevant data needed for deallocation.
     Update the allocation process to populate this metadata accurately during page allocation.
