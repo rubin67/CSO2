@@ -69,9 +69,9 @@ void prevent_optimizations_based_on_knowing_array_values() {
 }
 
 int main() {
-    const int MAX = 10240*2;
+    const int MAX = 32768*2;
     //8192*3
-    const int SKIP = 16;
+    const int SKIP = 16384;
     const int ITERS = 64000000;
 
 /* these two lines tell Clang (if used to compile this) not to try to 
