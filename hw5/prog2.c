@@ -69,7 +69,7 @@ void prevent_optimizations_based_on_knowing_array_values() {
 }
 
 int main() {
-    const int MAX = 8192*2;
+    const int MAX = 2048*5;
     //8192*3
     const int SKIP = 16;
     const int ITERS = 64000000;
