@@ -69,9 +69,12 @@ void prevent_optimizations_based_on_knowing_array_values() {
 }
 
 int main() {
-    const int MAX = 1048568;
-    const int SKIP = 4;
-    const int ITERS = 0;
+    const int MAX = 8192;
+    //1048568
+    const int SKIP = 16;
+    //4
+    const int ITERS = 64000000;
+    //64000000
 
 /* these two lines tell Clang (if used to compile this) not to try to 
    perform optimizations on this loop that are likely to make the access
