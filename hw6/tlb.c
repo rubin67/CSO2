@@ -90,13 +90,8 @@ size_t tlb_translate(size_t va){
     }
     
     // Find the LRU entry
-    int lru_index = 0;
-    for (int i = 0; i < WAYS; i++) {
-        if (tlb[set_index][i].valid && tlb[set_index][i].lru_counter == WAYS - 1) {
-            lru_index = i;
-            break;
-        }
-    }
+    int lru_index = find_lru(tlb[set_index]);
+    
     
     // Update TLB entry
     tlb[set_index][lru_index].tag = vpn;
@@ -104,14 +99,40 @@ size_t tlb_translate(size_t va){
     tlb[set_index][lru_index].valid = 1;
     
     // Update LRU counters
+    update_lru(set_index, lru_index);
+    
+    
+    return pa;
+}
+
+
+void update_lru(int set_index, int accessed_index) {
+    // Set the accessed cache line's LRU counter to 0
+    tlb[set_index][accessed_index].lru_counter = 0;
+
+    // Increment the LRU counters of other valid cache lines in the set
     for (int i = 0; i < WAYS; i++) {
-        if (tlb[set_index][i].valid) {
+        if (tlb[set_index][i].valid && i != accessed_index) {
             tlb[set_index][i].lru_counter++;
         }
     }
-    tlb[set_index][lru_index].lru_counter = 0;
-    
-    return pa;
+}
+
+
+int find_lru(CacheLine set[]) {
+    int lru_index = 0;
+    int min_lru_counter = set[0].lru_counter;
+
+    // Iterate through cache lines in the set
+    for (int i = 1; i < WAYS; i++) {
+        // If the current cache line has a lower LRU counter, update the LRU index and minimum LRU counter
+        if (set[i].lru_counter < min_lru_counter) {
+            lru_index = i;
+            min_lru_counter = set[i].lru_counter;
+        }
+    }
+
+    return lru_index;
 }
 
 
