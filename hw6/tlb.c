@@ -24,8 +24,7 @@ typedef struct {
 
 CacheLine tlb[NUM_SETS][WAYS];
 
-size_t ptbr = 0;
-
+extern size_t ptbr;
 size_t LRU_status = 0;
 
 /** invalidate all cache lines in the TLB */
