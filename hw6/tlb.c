@@ -139,24 +139,3 @@ size_t tlb_translate(size_t va)
 
     return pa;
 }
-
-size_t translate(size_t va)
-{
-    // Extract VPN (Virtual Page Number) from the virtual address
-    size_t vpn = va >> vpnbits;
-
-    // Check if the VPN is within the bounds of the page table
-    if (vpn >= NUM_PAGES)
-    {
-        // VPN out of bounds, translation failed
-        return -1;
-    }
-
-    // Look up the physical address corresponding to the VPN in the page table
-    size_t pa = *(size_t *)(ptbr + vpn * sizeof(size_t));
-
-    // Add the page offset to the physical address to get the final physical address
-    pa += va & (PAGE_SIZE - 1);
-
-    return pa;
-}
