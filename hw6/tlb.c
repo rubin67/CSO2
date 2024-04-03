@@ -32,7 +32,7 @@ typedef struct
 
 CacheLine tlb[NUM_SETS][WAYS];
 
-extern size_t ptb = 0;
+extern size_t ptbr;
 
 size_t LRU_status = 0;
 
