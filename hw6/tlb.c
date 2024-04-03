@@ -66,54 +66,28 @@ int tlb_peek(size_t va){
  * As an exception, if translate(va) returns -1, do not
  * update the TLB: just return -1.
  */
-size_t tlb_translate(size_t va){
-//  size_t vpn = va >> POBITS;
-//     size_t set_index = vpn % NUM_SETS;
+size_t tlb_translate(size_t va){ 
+    size_t vpn = va >> POBITS;
+    size_t set_index = vpn % NUM_SETS;
+    size_t offset = va & (POBITS - 1);
     
-//     // Check if the translation is already in the TLB
-//     for (int i = 0; i < WAYS; i++) {
-//         if (tlb[set_index][i].valid && tlb[set_index][i].tag == vpn) {
-//             // Update LRU
-//             for (int j = 0; j < WAYS; j++) {
-//                 if (tlb[set_index][j].valid && tlb[set_index][j].lru_counter < tlb[set_index][i].lru_counter) {
-//                     tlb[set_index][j].lru_counter++;
-//                 }
-//             }
-//             tlb[set_index][i].lru_counter = 0;
-//             return tlb[set_index][i].pa;
-//         }
-//     }
-    
-//     // If translation not found in TLB, perform translation
-//     size_t pa = translate(va & ~(POBITS - 1));
-//     if (pa == -1) {
-//         return -1;
-//     }
-    
-//     // Find the LRU entry
-//     int lru_index = 0;
-//     for (int i = 0; i < WAYS; i++) {
-//         if (tlb[set_index][i].valid && tlb[set_index][i].lru_counter == WAYS - 1) {
-//             lru_index = i;
-//             break;
-//         }
-//     }
-    
-//     // Update TLB entry
-//     tlb[set_index][lru_index].tag = vpn;
-//     tlb[set_index][lru_index].pa = pa;
-//     tlb[set_index][lru_index].valid = 1;
-    
-//     // Update LRU counters
-//     for (int i = 0; i < WAYS; i++) {
-//         if (tlb[set_index][i].valid) {
-//             tlb[set_index][i].lru_counter++;
-//         }
-//     }
-//     tlb[set_index][lru_index].lru_counter = 0;
-    
+    // Check if the translation is already in the TLB
+    for (int i = 0; i < WAYS; i++) {
+        if (tlb[set_index][i].valid && tlb[set_index][i].tag == vpn) {
+            // Update LRU
+            for (int j = 0; j < WAYS; j++) {
+                if (tlb[set_index][j].valid && tlb[set_index][j].lru_counter < tlb[set_index][i].lru_counter) {
+                    tlb[set_index][j].lru_counter++;
+                }
+            }
+            tlb[set_index][i].lru_counter = 0;
+
+            return tlb[set_index][i].pa | offset;
+        }
+    }
+
+
     return va;
-    //pa | (va & (POBITS - 1));
 }
 
 
