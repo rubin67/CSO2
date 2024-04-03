@@ -16,6 +16,12 @@
 #define NUM_SETS 16
 #define WAYS 4
 
+// Define the page size
+#define PAGE_SIZE 4096
+
+// Define the number of pages
+#define NUM_PAGES 4096
+
 typedef struct
 {
     size_t tag;
@@ -26,7 +32,7 @@ typedef struct
 
 CacheLine tlb[NUM_SETS][WAYS];
 
-extern size_t ptbr;
+extern size_t ptb = 0;
 
 size_t LRU_status = 0;
 
@@ -103,6 +109,7 @@ size_t tlb_translate(size_t va)
     {
         return -1;
     }
+
     // Find the LRU entry
     int lru_index = 0;
     for (int i = 0; i < WAYS; i++)
@@ -129,65 +136,26 @@ size_t tlb_translate(size_t va)
     }
     tlb[set_index][lru_index].lru_counter = 0;
 
-    return va;
+    return pa;
 }
 
-// size_t translate(size_t va)
-// {
+size_t translate(size_t va)
+{
+    // Extract VPN (Virtual Page Number) from the virtual address
+    size_t vpn = va >> vpnbits;
 
-//     // Remove offset bits
-//     size_t index = va >> POBITS;
+    // Check if the VPN is within the bounds of the page table
+    if (vpn >= NUM_PAGES)
+    {
+        // VPN out of bounds, translation failed
+        return -1;
+    }
 
-//     // Store value of offset
-//     size_t offset = va & ((1 << POBITS) - 1);
+    // Look up the physical address corresponding to the VPN in the page table
+    size_t pa = *(size_t *)(ptbr + vpn * sizeof(size_t));
 
-//     // Stores index
-//     size_t index_Holder = index;
+    // Add the page offset to the physical address to get the final physical address
+    pa += va & (PAGE_SIZE - 1);
 
-//     // Stores levels
-//     size_t levelCount = LEVELS;
-
-//     // Returns -1 is invalid page
-//     if (ptbr == 0)
-//     {
-//         return MAX;
-//     }
-
-//     // Store page table register
-//     size_t ptbr_Holder = ptbr;
-
-//     // Runs through all LEVELS, until it reaches the bottom level
-//     while (levelCount > 0)
-//     {
-//         levelCount--;
-
-//         // Remove any higher levels
-//         index_Holder = index >> (levelCount * vpnbits);
-
-//         // Remove unused bits with a mask
-//         index_Holder = index_Holder & ((1 << vpnbits) - 1);
-
-//         // Move to index of ptbr and shift through by POBITS to the address
-//         size_t ppn = *((size_t *)ptbr_Holder + index_Holder) >> POBITS;
-
-//         // Shift left by POBITS to create space
-//         size_t page_address = ppn << POBITS;
-
-//         // Set page table entry equal to the new location
-//         size_t pte = ((size_t *)ptbr_Holder)[index_Holder];
-//         if (!(pte & 1))
-//         {
-//             return MAX;
-//         }
-//         if ((page_address != 0))
-//         {
-//             ptbr_Holder = page_address;
-//         }
-//         else
-//         {
-//             return MAX;
-//         }
-//     }
-//     printf("translate output is %zx: \n", ptbr_Holder | offset);
-//     return ptbr_Holder | offset;
-// }
+    return pa;
+}
