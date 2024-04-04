@@ -52,8 +52,9 @@ void tlb_clear()
  */
 int tlb_peek(size_t va)
 {
-    size_t vpn = va >> POBITS;
-    size_t set_index = vpn % NUM_SETS;
+    size_t vpn = va >> (POBITS +4);
+
+    size_t set_index = (va >>(POBITS)) % NUM_SETS;
     for (int i = 0; i < WAYS; i++)
     {
         if (tlb[set_index][i].valid && tlb[set_index][i].tag == vpn)
@@ -77,8 +78,9 @@ int tlb_peek(size_t va)
 size_t tlb_translate(size_t va)
 {
 
-    size_t vpn = va >> vpnbits;
-    size_t set_index = vpn % NUM_SETS;
+    size_t vpn = va >> (POBITS +4);
+
+    size_t set_index = (va >>(POBITS)) % NUM_SETS;
 
     // Check if the translation is already in the TLB
     for (int i = 0; i < WAYS; i++)
@@ -104,12 +106,18 @@ size_t tlb_translate(size_t va)
     {
         return -1;
     }
+    pa = pa >> POBITS;
 
     // Find the LRU entry
     int lru_index = 0;
     for (int i = 0; i < WAYS; i++)
     {
         if (tlb[set_index][i].valid && tlb[set_index][i].lru_counter == WAYS - 1)
+        {
+            lru_index = i;
+            break;
+        }
+        if (!tlb[set_index][i].valid)
         {
             lru_index = i;
             break;
@@ -131,5 +139,7 @@ size_t tlb_translate(size_t va)
     }
     tlb[set_index][lru_index].lru_counter = 0;
 
-    return pa;
+
+
+    return pa | POBITS;
 }
