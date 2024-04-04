@@ -101,7 +101,7 @@ size_t tlb_translate(size_t va)
 
     // If translation not found in TLB, perform translation
     size_t va_holder = va >> POBITS;
-    va_holder = va << POBITS;
+    va_holder = va_holder << POBITS;
     size_t pa = translate(va_holder);
     if (pa == -1)
     {
