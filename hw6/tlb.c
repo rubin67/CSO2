@@ -83,7 +83,7 @@ size_t tlb_translate(size_t va)
 {
 
     size_t vpn = va >> vpnbits;
-    size_t set_index = vpn / NUM_SETS;
+    size_t set_index = vpn % NUM_SETS;
     size_t offset = va & (PAGE_SIZE - 1);
 
     // Check if the translation is already in the TLB
