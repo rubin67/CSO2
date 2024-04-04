@@ -105,7 +105,8 @@ size_t tlb_translate(size_t va)
     }
 
     // If translation not found in TLB, perform translation
-    //size_t pa = translate(va);
+    size_t pa = va;
+    //translate(va);
     if (pa == -1)
     {
         return -1;
