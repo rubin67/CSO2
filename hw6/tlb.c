@@ -16,7 +16,6 @@
 #define NUM_SETS 16
 #define WAYS 4
 
-
 typedef struct
 {
     size_t tag;
@@ -52,9 +51,9 @@ void tlb_clear()
  */
 int tlb_peek(size_t va)
 {
-    size_t vpn = va >> (POBITS +4);
+    size_t vpn = va >> (POBITS + 4);
 
-    size_t set_index = (va >>(POBITS)) % NUM_SETS;
+    size_t set_index = (va >> (POBITS)) % NUM_SETS;
     for (int i = 0; i < WAYS; i++)
     {
         if (tlb[set_index][i].valid && tlb[set_index][i].tag == vpn)
@@ -78,9 +77,9 @@ int tlb_peek(size_t va)
 size_t tlb_translate(size_t va)
 {
 
-    size_t vpn = va >> (POBITS +4);
-
-    size_t set_index = (va >>(POBITS)) % NUM_SETS;
+    size_t vpn = va >> (POBITS + 4);
+    size_t offset = va & ((1 << POBITS) - 1);
+    size_t set_index = (va >> (POBITS)) % NUM_SETS;
 
     // Check if the translation is already in the TLB
     for (int i = 0; i < WAYS; i++)
@@ -96,7 +95,7 @@ size_t tlb_translate(size_t va)
                 }
             }
             tlb[set_index][i].lru_counter = 0;
-            return tlb[set_index][i].pa;
+            return (tlb[set_index][i].pa << POBITS) | offset;
         }
     }
 
@@ -139,7 +138,7 @@ size_t tlb_translate(size_t va)
     }
     tlb[set_index][lru_index].lru_counter = 0;
 
+    pa = pa << POBITS;
 
-
-    return pa | POBITS;
+    return pa | offset;
 }
