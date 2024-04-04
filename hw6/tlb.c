@@ -58,7 +58,7 @@ int tlb_peek(size_t va)
     {
         if (tlb[set_index][i].valid && tlb[set_index][i].tag == vpn)
         {
-            return tlb[set_index][i].lru_counter;
+            return tlb[set_index][i].lru_counter+1;
         }
     }
     return 0;
