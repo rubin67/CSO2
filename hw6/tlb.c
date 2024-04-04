@@ -99,7 +99,7 @@ size_t tlb_translate(size_t va)
     }
 
     // If translation not found in TLB, perform translation
-    size_t pa = translate(va);
+    size_t pa = translate(vpn);
     if (pa == -1)
     {
         return -1;
@@ -129,7 +129,7 @@ size_t tlb_translate(size_t va)
             tlb[set_index][i].lru_counter++;
         }
     }
-    //tlb[set_index][lru_index].lru_counter = 0;
+    tlb[set_index][lru_index].lru_counter = 0;
 
     return pa;
 }
