@@ -16,11 +16,6 @@
 #define NUM_SETS 16
 #define WAYS 4
 
-// Define the page size
-#define PAGE_SIZE 2048
-
-// Define the number of pages
-#define NUM_PAGES 4096
 
 typedef struct
 {
@@ -134,7 +129,7 @@ size_t tlb_translate(size_t va)
             tlb[set_index][i].lru_counter++;
         }
     }
-    tlb[set_index][lru_index].lru_counter = 0;
+    //tlb[set_index][lru_index].lru_counter = 0;
 
     return pa;
 }
