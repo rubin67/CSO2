@@ -17,7 +17,7 @@
 #define WAYS 4
 
 // Define the page size
-#define PAGE_SIZE 4096
+#define PAGE_SIZE 2048
 
 // Define the number of pages
 #define NUM_PAGES 4096
@@ -84,7 +84,6 @@ size_t tlb_translate(size_t va)
 
     size_t vpn = va >> vpnbits;
     size_t set_index = vpn % NUM_SETS;
-    size_t offset = va & (PAGE_SIZE - 1);
 
     // Check if the translation is already in the TLB
     for (int i = 0; i < WAYS; i++)
@@ -137,5 +136,5 @@ size_t tlb_translate(size_t va)
     }
     tlb[set_index][lru_index].lru_counter = 0;
 
-    return pa | offset;
+    return pa;
 }

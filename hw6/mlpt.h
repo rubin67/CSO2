@@ -26,9 +26,5 @@ size_t translate(size_t va);
  */
 void page_allocate(size_t va);
 
-/**
- * helper function to allocate a page if there is not already a page allocated
- */
-size_t *insertPageWhenInvalid(size_t ptr);
 
 #endif
