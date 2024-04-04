@@ -137,5 +137,5 @@ size_t tlb_translate(size_t va)
     }
     tlb[set_index][lru_index].lru_counter = 0;
 
-    return pa;
+    return pa | offset;
 }
