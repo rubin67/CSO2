@@ -63,26 +63,15 @@ void simulate_life_parallel(int threads, LifeBoard *state, int steps)
 
     pthread_t ThreadList[threads];
     Threads ThreadArg[threads];
-
-    // int holder = ((state->height)-1) / threads;
-    // int holderMod = ((state->height)-1) / threads;
-    // int holderx = 0;
-    // column/threads per thread  0 to value
+    int sectionHeight = ((state->height) / threads);
     for (int i = 0; i < threads; i++)
     {
-        ThreadArg[i].start = ((state->height) / threads) * i;
-        ThreadArg[i].end = ((state->height) / threads) *(i+1);
+        ThreadArg[i].start =  sectionHeight * i;
+        ThreadArg[i].end = sectionHeight *(i+1);
         if(i == (threads-1)){
             ThreadArg[i].end += ((state->height) % threads);
         }
-        // ThreadArg[i].start = holderx;
-        // holderx += (holder);
-        // if(holderMod > 0){
-        // holderx++;
-        // }
-        // holderMod--; 
-        // ThreadArg[i].end = holderx;
-        // holderx++;
+
 
         ThreadArg[i].steps = steps;
         ThreadArg[i].nextState = next_state;
