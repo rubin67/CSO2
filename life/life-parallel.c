@@ -4,18 +4,17 @@
 #include <pthread.h>
 #include <stdlib.h>
 
+pthread_barrier_t barrier1;
+
 typedef struct
 {
     int start;
     int end;
     int steps;
-    LifeBoard* nextState;
-    LifeBoard* curState;
+    LifeBoard *nextState;
+    LifeBoard *curState;
     pthread_barrier_t *barrier;
 } Threads;
-
-
-
 
 void *threadLife(void *info)
 {
@@ -48,20 +47,19 @@ void *threadLife(void *info)
                 );
             }
         }
-
+        pthread_barrier_wait(&barrier1);
         /* now that we computed next_state, make it the current state */
-        LB_swap(threadInfo[step].curState, threadInfo[step].nextState);
+        LifeBoard *temp = threadInfo[step].curState;
+        threadInfo[step].curState = threadInfo[step].nextState;
+        threadInfo[step].nextState = temp;
     }
     return NULL;
 }
-
 
 void simulate_life_parallel(int threads, LifeBoard *state, int steps)
 {
     /* YOUR CODE HERE */
     LifeBoard *next_state = LB_new(state->width, state->height);
-
-    pthread_barrier_t barrier1;
 
     pthread_t ThreadList[threads];
     Threads ThreadArg[threads];
@@ -78,12 +76,13 @@ void simulate_life_parallel(int threads, LifeBoard *state, int steps)
         ThreadArg[i].nextState = next_state;
         ThreadArg[i].curState = state;
 
-
-
         ThreadArg[i].barrier = &barrier1;
-        pthread_barrier_wait(&barrier1);
         pthread_barrier_init(&barrier1, NULL, threads);
+
         pthread_create(&ThreadList[i], NULL, threadLife, &ThreadArg[i]);
+    }
+    for (int i = 0; i < threads; i++)
+    {
         pthread_join(ThreadList[i], NULL);
     }
     if (steps % 2 != 0)
@@ -94,4 +93,3 @@ void simulate_life_parallel(int threads, LifeBoard *state, int steps)
     LB_del(next_state);
     pthread_barrier_destroy(&barrier1);
 }
-
