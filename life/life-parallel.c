@@ -35,12 +35,17 @@ void *threadLife(void *info)
                 /* For each cell, examine a 3x3 "window" of cells around it,
                  * and count the number of live (true) cells in the window. */
                 int live_in_window = 0;
-                for (int y_offset = -1; y_offset <= 1; y_offset += 1)
-                    for (int x_offset = -1; x_offset <= 1; x_offset += 1)
+                for (int y_offset = -1; y_offset <= 1; y_offset += 1){
+                    for (int x_offset = -1; x_offset <= 1; x_offset += 1){
                     //possible issue on line below
+                    if(x_offset == 0 && y_offset == 0){
+                        continue;
+                    }
                         if (LB_get(threadInfo[step].curState, x + x_offset, y + y_offset))
                             live_in_window += 1;
 
+                    }
+                    }
                 /* Cells with 3 live neighbors remain or become live.
                    Live cells with 2 live neighbors remain live. */
                 LB_set(threadInfo[step].nextState, x, y,
@@ -107,6 +112,6 @@ void simulate_life_parallel(int threads, LifeBoard *state, int steps)
     
     LB_del(next_state);
     pthread_barrier_destroy(&barrier1);
-    free(ThreadArg);
     free(ThreadList);
+    free(ThreadArg);
 }
