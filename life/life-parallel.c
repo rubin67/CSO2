@@ -26,7 +26,7 @@ void *threadLife(void *info)
         /* We use the range [1, width - 1) here instead of
          * [0, width) because we fix the edges to be all 0s.
          */
-        for (int y = 1; y < threadInfo[step].curState->height - 1; y += 1)
+        for (int y = threadInfo[step].start; y < threadInfo[step].end; y += 1)
         {
             for (int x = 1; x < threadInfo[step].curState->width - 1; x += 1)
             {
@@ -64,14 +64,14 @@ void simulate_life_parallel(int threads, LifeBoard *state, int steps)
     pthread_t ThreadList[threads];
     Threads ThreadArg[threads];
 
-    int index = 0;
+
     // column/threads per thread  0 to value
     for (int i = 0; i < threads; i++)
     {
-        ThreadArg[i].start = index;
-        index += (state->height) / threads;
-        ThreadArg[i].end = index;
-        index++;
+        ThreadArg[i].start = ((state->height)-2) * i / threads + 1;
+        ThreadArg[i].end = ((state->height)-2) * (i+1) / threads + 1;
+
+    
         ThreadArg[i].steps = steps;
         ThreadArg[i].nextState = next_state;
         ThreadArg[i].curState = state;
