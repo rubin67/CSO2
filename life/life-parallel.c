@@ -26,10 +26,10 @@ void *threadLife(void *info)
         /* We use the range [1, width - 1) here instead of
          * [0, width) because we fix the edges to be all 0s.
          */
-        for (int y = threadInfo[step].start; y < threadInfo[step].end; y += 1)
+        for (int y = threadInfo->start; y < threadInfo->end; y += 1)
         {
             //possible issue on line below
-            for (int x = 1; x < threadInfo[step].curState->width - 1; x += 1)
+            for (int x = 1; x < threadInfo->curState->width - 1; x += 1)
             {
 
                 /* For each cell, examine a 3x3 "window" of cells around it,
@@ -38,28 +38,32 @@ void *threadLife(void *info)
                 for (int y_offset = -1; y_offset <= 1; y_offset += 1){
                     for (int x_offset = -1; x_offset <= 1; x_offset += 1){
                     //possible issue on line below
-                    if(x_offset == 0 && y_offset == 0){
+                    if(x + x_offset <= 0 || y +y_offset <= 0 || x + x_offset >= threadInfo->curState->width || y +y_offset >= threadInfo->curState->height){
                         continue;
                     }
-                        if (LB_get(threadInfo[step].curState, x + x_offset, y + y_offset))
+                        if (LB_get(threadInfo->curState, x + x_offset, y + y_offset)){
                             live_in_window += 1;
-
+                        }
+                
                     }
                     }
                 /* Cells with 3 live neighbors remain or become live.
                    Live cells with 2 live neighbors remain live. */
-                LB_set(threadInfo[step].nextState, x, y,
+                if(x <= 0 || y <= 0 || x >= threadInfo->curState->width || y >= threadInfo->curState->height){
+                        continue;
+                }
+                LB_set(threadInfo->nextState, x, y,
                        live_in_window == 3 /* dead cell with 3 neighbors or live cell with 2 */ ||
-                           (live_in_window == 4 && LB_get(threadInfo[step].curState, x, y)) /* live cell with 3 neighbors */
+                           (live_in_window == 4 && LB_get(threadInfo->curState, x, y)) /* live cell with 3 neighbors */
                 );
             }
         }
-        pthread_barrier_wait(threadInfo[step].barrier);
+        pthread_barrier_wait(threadInfo->barrier);
         /* now that we computed next_state, make it the current state */
-        LifeBoard *temp = threadInfo[step].curState;
-        threadInfo[step].curState = threadInfo[step].nextState;
-        threadInfo[step].nextState = temp;
-
+    
+        LB_swap(threadInfo->curState, threadInfo->nextState);
+        // LB_display(threadInfo->nextState,stdout);
+        pthread_barrier_wait(threadInfo->barrier);
     }
     return NULL;
 }
@@ -76,7 +80,7 @@ void simulate_life_parallel(int threads, LifeBoard *state, int steps)
 
 
     
-    int sectionHeight = ((state->height-2) / threads);
+    int sectionHeight = ((state->height) / threads);
     for (int i = 0; i < threads; i++)
     {
         ThreadArg[i].start =  sectionHeight * i;
@@ -99,16 +103,14 @@ void simulate_life_parallel(int threads, LifeBoard *state, int steps)
         //     fprintf(stderr, "Error creating thread %d\n", i);
         //     exit(1);
         // }
-        // //pthread_create(&ThreadList[i], NULL, threadLife, &ThreadArg[i]);
+        pthread_create(&ThreadList[i], NULL, threadLife, &ThreadArg[i]);
     }
     for (int i = 0; i < threads; i++)
     {
         pthread_join(ThreadList[i], NULL);
     }
-    if (steps % 2 != 0)
-    {
-        LB_swap(state, next_state);
-    }
+     
+    
     
     LB_del(next_state);
     pthread_barrier_destroy(&barrier1);
