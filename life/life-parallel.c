@@ -16,45 +16,6 @@ typedef struct
 
 
 
-void simulate_life_parallel(int threads, LifeBoard *state, int steps)
-{
-    /* YOUR CODE HERE */
-    LifeBoard *next_state = LB_new(state->width, state->height);
-
-    pthread_barrier_t *barrier;
-
-    pthread_t ThreadList[threads];
-    Threads ThreadArg[threads];
-
-    int index = 0;
-    // column/threads per thread  0 to value
-    for (int i = 0; i < threads; i++)
-    {
-        ThreadArg[i].start = index;
-        index += (state->height) / threads;
-        ThreadArg[i].end = index;
-        index++;
-        ThreadArg[i].steps = steps;
-        ThreadArg[i].nextState = next_state;
-        ThreadArg[i].curState = state;
-
-
-
-        ThreadArg[i].barrier = &barrier;
-        pthread_barrier_init(&barrier, NULL, threads);
-        pthread_create(&ThreadList[i], NULL, threadLife, &ThreadArg[i]);
-        pthread_join(ThreadList[i], NULL);
-    }
-    if (steps % 2 != 0)
-    {
-        LB_swap(state, next_state);
-    }
-
-    LB_del(next_state);
-    pthread_barrier_destroy(&next_state);
-}
-
-
 
 void *threadLife(void *info)
 {
@@ -91,4 +52,46 @@ void *threadLife(void *info)
         /* now that we computed next_state, make it the current state */
         LB_swap(threadInfo[step].curState, threadInfo[step].nextState);
     }
+    return NULL;
 }
+
+
+void simulate_life_parallel(int threads, LifeBoard *state, int steps)
+{
+    /* YOUR CODE HERE */
+    LifeBoard *next_state = LB_new(state->width, state->height);
+
+    pthread_barrier_t barrier1;
+
+    pthread_t ThreadList[threads];
+    Threads ThreadArg[threads];
+
+    int index = 0;
+    // column/threads per thread  0 to value
+    for (int i = 0; i < threads; i++)
+    {
+        ThreadArg[i].start = index;
+        index += (state->height) / threads;
+        ThreadArg[i].end = index;
+        index++;
+        ThreadArg[i].steps = steps;
+        ThreadArg[i].nextState = next_state;
+        ThreadArg[i].curState = state;
+
+
+
+        ThreadArg[i].barrier = &barrier1;
+        pthread_barrier_wait(&barrier1);
+        pthread_barrier_init(&barrier1, NULL, threads);
+        pthread_create(&ThreadList[i], NULL, threadLife, &ThreadArg[i]);
+        pthread_join(ThreadList[i], NULL);
+    }
+    if (steps % 2 != 0)
+    {
+        LB_swap(state, next_state);
+    }
+
+    LB_del(next_state);
+    pthread_barrier_destroy(&barrier1);
+}
+
