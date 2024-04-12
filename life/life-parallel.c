@@ -81,7 +81,7 @@ void simulate_life_parallel(int threads, LifeBoard *state, int steps)
     pthread_t *ThreadList = (pthread_t *)malloc(threads * sizeof(pthread_t));
     Threads *ThreadArg = (Threads *)malloc(threads * sizeof(Threads));
 
-    int sectionHeight = ((state->height) / threads);
+    int sectionHeight = ((state->height-2) / threads);
     for (int i = 0; i < threads; i++)
     {
         ThreadArg[i].start = sectionHeight * i;
