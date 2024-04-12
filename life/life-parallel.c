@@ -88,7 +88,7 @@ void simulate_life_parallel(int threads, LifeBoard *state, int steps)
         ThreadArg[i].end = sectionHeight * (i + 1);
         if (i == (threads - 1))
         {
-            ThreadArg[i].end += ((state->height - 2) % threads);
+            ThreadArg[i].end = state->height - 1;
         }
 
         ThreadArg[i].steps = steps;
