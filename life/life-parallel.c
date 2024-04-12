@@ -78,14 +78,17 @@ void simulate_life_parallel(int threads, LifeBoard *state, int steps)
     /* YOUR CODE HERE */
     LifeBoard *next_state = LB_new(state->width, state->height);
     pthread_barrier_t barrier1;
+    pthread_barrier_init(&barrier1, NULL, threads);
     pthread_t *ThreadList = (pthread_t *)malloc(threads * sizeof(pthread_t));
     Threads *ThreadArg = (Threads *)malloc(threads * sizeof(Threads));
 
     int sectionHeight = ((state->height-2) / threads);
+    int  curHeight= 1;
     for (int i = 0; i < threads; i++)
     {
-        ThreadArg[i].start = sectionHeight * i;
-        ThreadArg[i].end = sectionHeight * (i + 1);
+        ThreadArg[i].start = curHeight;
+        curHeight += sectionHeight;
+        ThreadArg[i].end = curHeight;
         if (i == (threads - 1))
         {
             ThreadArg[i].end = state->height - 1;
@@ -97,13 +100,8 @@ void simulate_life_parallel(int threads, LifeBoard *state, int steps)
         ThreadArg[i].threadID = i;
         ThreadArg[i].barrier = &barrier1;
 
-        pthread_barrier_init(&barrier1, NULL, threads);
+        
 
-        // // Create thread
-        // if (pthread_create(&ThreadList[i], NULL, threadLife, &ThreadArg[i]) != 0) {
-        //     fprintf(stderr, "Error creating thread %d\n", i);
-        //     exit(1);
-        // }
         pthread_create(&ThreadList[i], NULL, threadLife, &ThreadArg[i]);
     }
     for (int i = 0; i < threads; i++)
